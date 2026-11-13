@@ -90,7 +90,8 @@ main.in-l{animation:inL .2s ease-out} main.in-r{animation:inR .2s ease-out}
 .ut .t{flex:1;min-width:0;font-weight:500;overflow-wrap:anywhere}
 
 /* timeline */
-.tl{position:relative;margin:0 16px 24px 0;height:calc(var(--hour) * 24 + 12px);cursor:copy}
+.tl{position:relative;margin:0 16px 24px 0;height:calc(var(--hour) * 24 + 12px);cursor:copy;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.draft{position:absolute;left:58px;right:4px;border-radius:12px;background:var(--accent-soft);border:2px dashed var(--accent);z-index:6;padding:4px 10px;font-size:12px;font-weight:800;color:var(--accent);pointer-events:none;font-variant-numeric:tabular-nums;box-shadow:var(--shadow)}
 .hr{position:absolute;left:0;right:0;height:var(--hour);border-top:1px solid var(--line)}
 .hr span{position:absolute;left:0;width:52px;text-align:right;top:-9px;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding-right:6px;font-variant-numeric:tabular-nums}
 .hr:first-child{border-top-color:transparent}
@@ -610,6 +611,7 @@ $("d0").addEventListener("click", ()=>selectOff(0));
 $("d1").addEventListener("click", ()=>selectOff(1));
 
 main.addEventListener("click", e=>{
+  if(suppressClick){ suppressClick=false; return; }
   const c=e.target.closest("[data-chk]"); if(c){ e.stopPropagation(); return toggle(c.dataset.chk); }
   const it=e.target.closest("[data-id]"); if(it) return openSheet({id:it.dataset.id});
   const tl=e.target.closest("#tl");
@@ -624,11 +626,82 @@ main.addEventListener("keydown", e=>{
   if((e.key==="Enter"||e.key===" ") && e.target.matches("[data-id]")){ e.preventDefault(); openSheet({id:e.target.dataset.id}); }
 });
 
+/* long-press (touch) or drag (mouse) on an empty part of the timeline to pick a time range */
+const SNAP=15;
+let cr=null, suppressClick=false;
+function minAt(clientY){ return (clientY - $("tl").getBoundingClientRect().top - 6)/hourPx()*60; }
+const snapMin = m => Math.max(0, Math.min(1440-SNAP, Math.floor(m/SNAP)*SNAP));
+function crRange(){
+  const a=cr.a, c=snapMin(cr.m);
+  const s=Math.min(a,c), e=Math.min(1440, Math.max(a+30, c+SNAP));
+  return [s,e];
+}
+function drawDraft(){
+  const tl=$("tl"); if(!tl) return;
+  const [s,e]=crRange(), H=hourPx();
+  let d=$("draft"); if(!d){ d=document.createElement("div"); d.id="draft"; d.className="draft"; tl.appendChild(d); }
+  d.style.top=(s/60*H+6)+"px"; d.style.height=((e-s)/60*H-3)+"px";
+  d.textContent=fromMin(s)+"–"+fromMin(Math.min(e,1439));
+}
+function crBegin(){
+  cr.active=true; cr.a=snapMin(cr.m0); cr.m=cr.m0;
+  try{ navigator.vibrate && navigator.vibrate(10); }catch(e){}
+  drawDraft(); autoScroll();
+}
+function crMove(y){ cr.y=y; cr.m=minAt(y); drawDraft(); }
+function autoScroll(){
+  if(!cr || !cr.active) return;
+  const r=main.getBoundingClientRect(), edge=56; let v=0;
+  if(cr.y<r.top+edge) v=-Math.ceil((r.top+edge-cr.y)/5);
+  else if(cr.y>r.bottom-edge) v=Math.ceil((cr.y-(r.bottom-edge))/5);
+  if(v){ main.scrollTop+=v; cr.m=minAt(cr.y); drawDraft(); }
+  cr.raf=requestAnimationFrame(autoScroll);
+}
+function crEnd(commit){
+  if(!cr) return;
+  clearTimeout(cr.timer); cancelAnimationFrame(cr.raf);
+  const was=cr.active, range=was ? crRange() : null;
+  const d=$("draft"); if(d) d.remove();
+  cr=null;
+  if(was){
+    suppressClick=true; setTimeout(()=>suppressClick=false, 400);
+    if(commit) openSheet({start:range[0], end:Math.min(range[1],1439)});
+  }
+}
+const onEmptyTl = t => t.closest("#tl") && !t.closest("[data-id]");
+main.addEventListener("touchstart", e=>{
+  if(cr){ crEnd(false); return; }
+  if(e.touches.length!==1 || !onEmptyTl(e.target)) return;
+  const t=e.touches[0];
+  cr={x:t.clientX, y:t.clientY, m0:minAt(t.clientY), active:false, touch:true};
+  cr.timer=setTimeout(()=>{ if(cr && !cr.active) crBegin(); }, 350);
+}, {passive:true});
+document.addEventListener("touchmove", e=>{
+  if(!cr || !cr.touch) return;
+  const t=e.touches[0];
+  if(!cr.active){ if(Math.hypot(t.clientX-cr.x, t.clientY-cr.y)>8){ clearTimeout(cr.timer); cr=null; } return; }
+  e.preventDefault(); crMove(t.clientY);
+}, {passive:false});
+document.addEventListener("touchend", e=>{ if(cr && cr.touch){ if(cr.active) e.preventDefault(); crEnd(true); } }, {passive:false});
+document.addEventListener("touchcancel", ()=>crEnd(false));
+main.addEventListener("contextmenu", e=>{ if(e.target.closest("#tl")) e.preventDefault(); });
+main.addEventListener("mousedown", e=>{
+  if(e.button!==0 || cr || !onEmptyTl(e.target)) return;
+  cr={x:e.clientX, y:e.clientY, m0:minAt(e.clientY), active:false, touch:false};
+});
+window.addEventListener("mousemove", e=>{
+  if(!cr || cr.touch) return;
+  if(!cr.active){ if(Math.abs(e.clientY-cr.y)<=6) return; crBegin(); }
+  crMove(e.clientY);
+});
+window.addEventListener("mouseup", ()=>{ if(cr && !cr.touch) crEnd(true); });
+
 /* swipe left/right to switch 今日/明日 */
 let sw=null;
 main.addEventListener("touchstart", e=>{ if(e.touches.length===1){ const t=e.touches[0]; sw={x:t.clientX,y:t.clientY,t:Date.now()}; } else sw=null; }, {passive:true});
 main.addEventListener("touchend", e=>{
   if(!sw) return;
+  if(cr && cr.active){ sw=null; return; }
   const t=e.changedTouches[0], dx=t.clientX-sw.x, dy=t.clientY-sw.y, dt=Date.now()-sw.t; sw=null;
   if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5 && dt<700){ selectOff(dx<0 ? 1 : 0); }
 }, {passive:true});
