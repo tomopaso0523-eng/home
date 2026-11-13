@@ -1,0 +1,37 @@
+{
+  "name": "旅の足跡",
+  "short_name": "旅の足跡",
+  "description": "世界249の国・地域と日本47都道府県の訪問状況を地図で記録する旅行記録アプリ",
+  "lang": "ja",
+  "start_url": "/tabinoashi/",
+  "scope": "/tabinoashi/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFCF4",
+  "theme_color": "#0017C1",
+  "icons": [
+    {
+      "src": "/tabinoashi/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/tabinoashi/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/tabinoashi/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/tabinoashi/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
