@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tabiji — 旅路アニメマップ</title>
+<meta name="theme-color" content="#f5f2ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tabiji">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff5d73'/%3E%3Cstop offset='1' stop-color='%23ffb057'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='30' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='%23fff'%3E✦%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ec; --card:#fff; --ink:#1d1b2f; --mute:#7a7690; --line:#e8e3da;
+  --accent:#ff5d73; --accent2:#5b6cff; --soft:#f0ece4;
+  --font:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font)}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button,input,select{font-family:inherit;color:inherit}
+button{cursor:pointer}
+#app{max-width:1180px;margin:0 auto;padding:10px 12px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 10px}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:800;font-size:22px;letter-spacing:.02em}
+.brand .logo{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#ffb057);color:#fff;font-size:17px;align-self:center}
+.brand .sub{font-size:12px;font-weight:700;color:var(--mute)}
+.sync{font-size:11px;color:var(--mute);background:var(--card);border:1px solid var(--line);padding:4px 9px;border-radius:99px;white-space:nowrap}
+.layout{display:grid;gap:14px}
+@media(min-width:900px){.layout{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}.left{position:sticky;top:10px}}
+#stageWrap{display:flex;justify-content:center;background:#0c0f24;border-radius:22px;padding:10px;box-shadow:0 10px 30px rgba(20,20,60,.18)}
+#stage{position:relative;line-height:0}
+#cv{display:block;border-radius:14px;touch-action:none;background:#000}
+#cv.adding{cursor:crosshair;outline:3px dashed #ffd166;outline-offset:3px}
+#stageMsg{position:absolute;left:50%;top:12px;transform:translateX(-50%);line-height:1.4;font-size:12px;font-weight:700;background:rgba(255,209,102,.95);color:#1d1b2f;padding:6px 12px;border-radius:99px;display:none;white-space:nowrap;pointer-events:none}
+#stageMsg.show{display:block}
+#recOverlay{position:absolute;inset:0;display:none;align-items:flex-start;justify-content:flex-end;padding:10px;pointer-events:none;line-height:1.3}
+#recOverlay.show{display:flex}
+#recOverlay span{background:#e03131;color:#fff;font-size:12px;font-weight:800;padding:5px 10px;border-radius:99px;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.55}}
+#theaterClose{display:none}
+.controls{display:flex;align-items:center;gap:8px;margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px}
+.play{width:46px;height:46px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:18px;flex:none;box-shadow:0 4px 12px rgba(255,93,115,.4)}
+.scrub{flex:1;min-width:0}
+.scrub input{width:100%;accent-color:var(--accent)}
+.time{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-top:-2px;font-variant-numeric:tabular-nums}
+.chip{border:1px solid var(--line);background:var(--soft);border-radius:99px;padding:8px 10px;font-size:13px;font-weight:700;flex:none}
+.icon{border:1px solid var(--line);background:var(--soft);border-radius:12px;width:38px;height:38px;font-size:16px;flex:none}
+.rec{border:none;background:var(--ink);color:#fff;border-radius:12px;height:38px;padding:0 12px;font-size:13px;font-weight:800;flex:none}
+.rec .dot{color:#ff6b6b}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px}
+.tabs button{flex:1;border:none;background:none;border-radius:12px;padding:10px 4px;font-weight:800;font-size:14px;color:var(--mute)}
+.tabs button.on{background:var(--ink);color:#fff}
+.panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;margin-top:10px}
+.panel.on{display:block}
+.title-in{width:100%;border:none;border-bottom:2px solid var(--line);font-size:20px;font-weight:800;padding:6px 2px 8px;background:none;outline:none}
+.title-in:focus{border-color:var(--accent)}
+.search{position:relative;margin-top:12px}
+.search input{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px 12px 38px;font-size:15px;background:var(--soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%237a7690' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 12px 50%/18px no-repeat;outline:none}
+.search input:focus{border-color:var(--accent);background-color:#fff}
+#sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.12);z-index:20;overflow:hidden;display:none}
+#sugg.show{display:block}
+#sugg button{display:flex;width:100%;justify-content:space-between;align-items:center;border:none;background:none;padding:11px 14px;font-size:15px;text-align:left;border-bottom:1px solid var(--soft)}
+#sugg button:last-child{border-bottom:none}
+#sugg button:active,#sugg button.hl{background:var(--soft)}
+#sugg small{color:var(--mute);font-size:12px;margin-left:8px;white-space:nowrap}
+.row-btns{display:flex;gap:8px;margin-top:10px}
+.ghost{flex:1;border:1.5px dashed #cfc8ba;background:none;border-radius:14px;padding:11px;font-size:14px;font-weight:700;color:var(--ink)}
+.ghost.on{background:#fff3cf;border-color:#f0b429;border-style:solid}
+#stops{margin-top:14px}
+.empty{text-align:center;color:var(--mute);font-size:14px;padding:22px 10px;line-height:1.7}
+.stop{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:14px;padding:9px 8px 9px 10px}
+.num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;flex:none}
+.sname{flex:1;min-width:0;border:none;background:none;text-align:left;padding:0;font-size:15px;font-weight:700}
+.sname small{display:block;color:var(--mute);font-weight:500;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini{width:32px;height:32px;border:none;background:#fff;border-radius:10px;font-size:13px;color:var(--mute);flex:none}
+.mini:disabled{opacity:.35}
+.leg{display:flex;align-items:center;gap:8px;padding:6px 0 6px 22px;position:relative}
+.leg:before{content:"";position:absolute;left:23px;top:0;bottom:0;border-left:2px dashed #d6cfc2}
+.leg select{position:relative;margin-left:16px;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 10px;font-size:13px;font-weight:700;outline:none}
+.leg .km{font-size:12px;color:var(--mute)}
+.summary{margin-top:12px;font-size:13px;color:var(--mute);text-align:center}
+h4{margin:16px 0 8px;font-size:13px;color:var(--mute);letter-spacing:.06em}
+h4:first-child{margin-top:0}
+.themes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.theme{border:2px solid transparent;border-radius:14px;padding:6px;background:var(--soft);font-size:12px;font-weight:700}
+.theme.on{border-color:var(--ink)}
+.theme i{display:block;height:44px;border-radius:10px;margin-bottom:5px;position:relative;overflow:hidden}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 6px;font-weight:700;font-size:13px;min-width:60px}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tog{display:flex;align-items:center;justify-content:space-between;padding:10px 2px;border-bottom:1px solid var(--soft);font-size:14px;font-weight:700}
+.tog:last-child{border-bottom:none}
+.sw{appearance:none;-webkit-appearance:none;width:46px;height:28px;border-radius:99px;background:#d9d3c7;position:relative;transition:.2s;flex:none;margin:0}
+.sw:after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw:checked{background:var(--accent)}
+.sw:checked:after{left:21px}
+.trip{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:var(--soft);margin-bottom:8px}
+.trip.on{outline:2px solid var(--ink)}
+.trip .tt{flex:1;min-width:0;border:none;background:none;text-align:left;padding:0;font-weight:800;font-size:15px}
+.trip .tt small{display:block;font-weight:500;font-size:12px;color:var(--mute)}
+.btn{border:none;background:var(--ink);color:#fff;border-radius:14px;padding:12px 14px;font-weight:800;font-size:14px}
+.btn.sec{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.btn.full{width:100%}
+.samples{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sample{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px;text-align:left;font-size:13px;font-weight:800}
+.sample small{display:block;font-weight:500;color:var(--mute);font-size:11px;margin-top:2px}
+.note{font-size:12px;color:var(--mute);line-height:1.6;margin-top:8px}
+.modal{position:fixed;inset:0;background:rgba(15,14,30,.5);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding:12px}
+.modal.hidden{display:none}
+.sheet{background:#fff;border-radius:22px;width:100%;max-width:440px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);margin-bottom:env(safe-area-inset-bottom)}
+@media(min-width:600px){.modal{align-items:center}}
+.sheet h3{margin:0 0 12px;font-size:18px}
+.sheet p{margin:0 0 12px;font-size:14px;line-height:1.6;color:#4a4760}
+.sheet label{display:block;font-size:12px;font-weight:700;color:var(--mute);margin:10px 0 4px}
+.sheet input,.sheet textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-size:16px;font-family:inherit;outline:none;background:var(--soft)}
+.sheet .acts{display:flex;gap:8px;margin-top:16px}
+.sheet .acts button{flex:1}
+.btn.danger{background:#fff0f0;color:#e03131;border:1px solid #ffd6d6}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:99px;font-size:13px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:200;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body.theater{overflow:hidden}
+body.theater #stageWrap{position:fixed;inset:0;z-index:90;border-radius:0;padding:calc(env(safe-area-inset-top) + 8px) 8px calc(env(safe-area-inset-bottom) + 70px);align-items:center;background:#000}
+body.theater #theaterClose{display:block;position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:12px;z-index:95;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:18px}
+body.theater .controls{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);z-index:96;margin:0;background:rgba(30,30,40,.85);border-color:transparent;color:#fff}
+body.theater .controls .chip,body.theater .controls .icon{background:rgba(255,255,255,.12);border-color:transparent;color:#fff}
+body.theater .time{color:#bbb}
+body.theater.hidectl .controls,body.theater.hidectl #theaterClose{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand"><span class="logo">✦</span>Tabiji<span class="sub">旅路アニメマップ</span></div>
+    <div id="sync" class="sync">準備中…</div>
+  </header>
+  <div class="layout">
+    <div class="left">
+      <section id="stageWrap">
+        <div id="stage">
+          <canvas id="cv" width="720" height="1280"></canvas>
+          <div id="stageMsg">地図をタップして地点を追加 · ドラッグで回転</div>
+          <div id="recOverlay"><span>● REC</span></div>
+        </div>
+        <button id="theaterClose" aria-label="閉じる">✕</button>
+      </section>
+      <div class="controls">
+        <button id="btnPlay" class="play" aria-label="再生">▶</button>
+        <div class="scrub">
+          <input type="range" id="scrub" min="0" max="1000" value="1000" aria-label="再生位置">
+          <div class="time"><span id="tNow">0:00</span><span id="tAll">0:00</span></div>
+        </div>
+        <button id="btnSpeed" class="chip" aria-label="再生速度">1x</button>
+        <button id="btnTheater" class="icon" aria-label="シアター表示">⛶</button>
+        <button id="btnRec" class="rec"><span class="dot">●</span> 動画</button>
+      </div>
+    </div>
+    <div class="right">
+      <nav class="tabs">
+        <button data-tab="route" class="on">ルート</button>
+        <button data-tab="design">デザイン</button>
+        <button data-tab="trips">マイ旅</button>
+      </nav>
+      <section id="tab-route" class="panel on">
+        <input id="tripTitle" class="title-in" placeholder="旅のタイトル" maxlength="40">
+        <div class="search">
+          <input id="q" placeholder="地名で検索して追加（例: 京都 / Paris）" autocomplete="off" enterkeyhint="search">
+          <div id="sugg"></div>
+        </div>
+        <div class="row-btns">
+          <button id="btnAddMap" class="ghost">📍 地図をタップして追加</button>
+        </div>
+        <div id="stops"></div>
+        <div class="summary" id="summary"></div>
+      </section>
+      <section id="tab-design" class="panel">
+        <h4>テーマ</h4>
+        <div class="themes" id="themes"></div>
+        <h4>画面比率</h4>
+        <div class="seg" id="aspects"></div>
+        <h4>表示</h4>
+        <div id="toggles"></div>
+      </section>
+      <section id="tab-trips" class="panel">
+        <button id="btnNew" class="btn full">＋ 新しい旅をつくる</button>
+        <h4>保存した旅</h4>
+        <div id="tripList"></div>
+        <h4>サンプルから始める</h4>
+        <div class="samples" id="samples"></div>
+        <h4>バックアップ</h4>
+        <div class="row-btns">
+          <button id="btnExport" class="btn sec" style="flex:1">書き出し (JSON)</button>
+          <button id="btnImport" class="btn sec" style="flex:1">読み込み</button>
+          <input type="file" id="fileIn" accept=".json,application/json" hidden>
+        </div>
+        <p class="note" id="storeNote"></p>
+      </section>
+    </div>
+  </div>
+</div>
+<div id="modal" class="modal hidden"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<script>__D3__</script>
+<script>__TOPO__</script>
+<script>__CITIES__</script>
+<script>
+"use strict";
+/* ============ DATA ============ */
+const WORLD50 = __C50__;
+const WORLD110 = __C110__;
+const GEO = {
+  land50: topojson.feature(WORLD50, WORLD50.objects.land),
+  bord50: topojson.mesh(WORLD50, WORLD50.objects.countries, (a,b)=>a!==b),
+  land110: topojson.feature(WORLD110, WORLD110.objects.land),
+  bord110: topojson.mesh(WORLD110, WORLD110.objects.countries, (a,b)=>a!==b),
+  grat: d3.geoGraticule10(),
+};
+/* fast renderer: precompute unit vectors + bounding caps per polygon / line */
+const RAD=Math.PI/180;
+function xyzOf(ring){const a=new Float64Array(ring.length*3);for(let i=0;i<ring.length;i++){const l=ring[i][0]*RAD,f=ring[i][1]*RAD,cf=Math.cos(f);a[i*3]=cf*Math.cos(l);a[i*3+1]=cf*Math.sin(l);a[i*3+2]=Math.sin(f)}return a}
+function capItem(rings,geo){
+  const xs=rings.map(xyzOf);let x=0,y=0,z=0;for(const a of xs)for(let i=0;i<a.length;i+=3){x+=a[i];y+=a[i+1];z+=a[i+2]}
+  const n=Math.hypot(x,y,z)||1;x/=n;y/=n;z/=n;let r=0;
+  for(const a of xs)for(let i=0;i<a.length;i+=3){const d=Math.acos(Math.max(-1,Math.min(1,a[i]*x+a[i+1]*y+a[i+2]*z)));if(d>r)r=d}
+  if(n<1e-6) r=Math.PI;
+  return {xs,c:[x,y,z],r,geo};
+}
+function polysOf(fc){const out=[];const feats=fc.type==="FeatureCollection"?fc.features:[fc];for(const f of feats){const g=f.geometry||f;const ps=g.type==="Polygon"?[g.coordinates]:g.type==="MultiPolygon"?g.coordinates:[];for(const p of ps)out.push(capItem(p,{type:"Polygon",coordinates:p}))}return out}
+function linesOf(ml){const ls=ml.type==="MultiLineString"?ml.coordinates:[ml.coordinates];return ls.map(l=>capItem([l],{type:"LineString",coordinates:l}))}
+GEO.L50=polysOf(GEO.land50);GEO.L110=polysOf(GEO.land110);GEO.B50=linesOf(GEO.bord50);GEO.B110=linesOf(GEO.bord110);
+const CITIES = CITY_RAW.trim().split("\n").map(l=>{const [ja,en,lat,lon,co]=l.split("|");return {ja,en,lat:+lat,lon:+lon,co,key:(ja+" "+en).toLowerCase().replace(/\s+/g,"")}});
+const CITY_BY = new Map(CITIES.map(c=>[c.ja,c]));
+
+const MODES = {
+  plane:{ja:"飛行機",icon:"✈️",color:"#ff6b6b"},
+  train:{ja:"電車",icon:"🚄",color:"#4dabf7"},
+  car:{ja:"車",icon:"🚗",color:"#ffa94d"},
+  bus:{ja:"バス",icon:"🚌",color:"#40c057"},
+  ship:{ja:"船",icon:"🚢",color:"#15aabf"},
+  bike:{ja:"自転車",icon:"🚲",color:"#f06595"},
+  walk:{ja:"徒歩",icon:"🚶",color:"#9775fa"},
+};
+const THEMES = {
+  night:{name:"ナイト",bg:["#050819","#141a3d"],ocean:["#16336b","#0a1838"],land:"#2c4777",coast:"rgba(150,185,255,.35)",border:"rgba(170,200,255,.22)",grat:"rgba(150,180,255,.07)",glow:"rgba(80,150,255,.45)",casing:"rgba(5,10,30,.55)",pin:"#ff5d73",lbBg:"rgba(255,255,255,.96)",lbTx:"#14193a",hud:"#ffffff",hudBg:"rgba(12,18,45,.6)",stars:true,shade:.35},
+  paper:{name:"ペーパー",bg:["#f4ecdc","#e8dcc4"],ocean:["#d3e7ea","#b4d3d9"],land:"#fcf7ea",coast:"rgba(110,90,60,.55)",border:"rgba(110,90,60,.3)",grat:"rgba(110,90,60,.1)",glow:"rgba(255,255,255,0)",casing:"rgba(255,255,255,.85)",pin:"#e8590c",lbBg:"#2b2420",lbTx:"#fff8ec",hud:"#2b2420",hudBg:"rgba(255,250,238,.85)",stars:false,shade:.12},
+  mint:{name:"ミント",bg:["#e3f7f2","#c3ebe3"],ocean:["#9ad9e6","#6ec2d6"],land:"#fff3cc",coast:"rgba(205,150,60,.55)",border:"rgba(205,150,60,.35)",grat:"rgba(255,255,255,.25)",glow:"rgba(255,255,255,.6)",casing:"rgba(255,255,255,.9)",pin:"#ff6b8a",lbBg:"#ffffff",lbTx:"#2b3a42",hud:"#23414a",hudBg:"rgba(255,255,255,.85)",stars:false,shade:.15},
+  sunset:{name:"サンセット",bg:["#1d1238","#6d2c5c"],ocean:["#47317a","#211544"],land:"#f3c9a4",coast:"rgba(120,40,40,.35)",border:"rgba(120,40,40,.28)",grat:"rgba(255,200,180,.07)",glow:"rgba(255,140,120,.5)",casing:"rgba(30,10,40,.5)",pin:"#ffd166",lbBg:"rgba(255,248,240,.97)",lbTx:"#3a1838",hud:"#fff6ee",hudBg:"rgba(40,18,55,.6)",stars:true,shade:.3},
+};
+const ASPECTS = {"9:16":[720,1280],"4:5":[960,1200],"1:1":[1080,1080],"16:9":[1280,720]};
+const SPEEDS = [0.5,1,1.5,2];
+const R_EARTH = 6371, RMIN = 0.006, RMAX = 2.4;
+
+function st(name, mode, note){ const c=CITY_BY.get(name); return {id:uid(),name:c.ja,lat:c.lat,lon:c.lon,co:c.co,mode:mode||null,note:note||""}; }
+const SAMPLES = [
+  {title:"日本縦断の旅", sub:"札幌 → 石垣島", style:{theme:"night"}, stops:()=>[st("札幌"),st("函館","train"),st("仙台","train"),st("東京","train"),st("金沢","train"),st("京都","train","紅葉がきれいだった"),st("広島","train"),st("福岡","train"),st("那覇","plane"),st("石垣島","plane"),st("竹富島","ship")]},
+  {title:"ヨーロッパ周遊", sub:"パリ → ローマ", style:{theme:"paper",aspect:"1:1"}, stops:()=>[st("成田空港"),st("パリ","plane"),st("ブリュッセル","train"),st("アムステルダム","train"),st("ベルリン","train"),st("プラハ","bus"),st("ウィーン","train"),st("ハルシュタット","car"),st("ベネチア","bus"),st("フィレンツェ","train"),st("ローマ","train"),st("羽田空港","plane")]},
+  {title:"世界一周 2027", sub:"14都市・5大陸", style:{theme:"sunset"}, stops:()=>[st("東京"),st("ホノルル","plane"),st("ロサンゼルス","plane"),st("グランドキャニオン","car"),st("ラスベガス","car"),st("ニューヨーク","plane"),st("リスボン","plane"),st("バルセロナ","plane"),st("カイロ","plane"),st("ドバイ","plane"),st("モルディブ（マレ）","plane"),st("シンガポール","plane"),st("バンコク","plane"),st("東京","plane")]},
+  {title:"東南アジア バックパック", sub:"バンコク周回", style:{theme:"mint",aspect:"4:5"}, stops:()=>[st("バンコク"),st("チェンマイ","train"),st("ルアンパバーン","bus"),st("ハノイ","plane"),st("ハロン湾","bus"),st("ダナン","plane"),st("ホイアン","bike"),st("ホーチミン","plane"),st("シェムリアップ","bus"),st("バンコク","bus")]},
+];
+
+/* ============ UTILS ============ */
+const $ = s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const easeIO=k=>{k=clamp(k,0,1);return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2};
+const easeS=k=>0.5-0.5*Math.cos(Math.PI*clamp(k,0,1));
+const easeOut=k=>1-Math.pow(1-clamp(k,0,1),3);
+function bounce(k){k=clamp(k,0,1);const n=7.5625,d=2.75;if(k<1/d)return n*k*k;if(k<2/d)return n*(k-=1.5/d)*k+.75;if(k<2.5/d)return n*(k-=2.25/d)*k+.9375;return n*(k-=2.625/d)*k+.984375}
+function uid(){return "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+const fmtKm=km=>km>=100?Math.round(km).toLocaleString("ja-JP"):km>=10?km.toFixed(0):km.toFixed(1);
+const fmtT=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg,ms){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),ms||2200)}
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function defaultMode(a,b){const km=d3.geoDistance([a.lon,a.lat],[b.lon,b.lat])*R_EARTH;return km>650?"plane":km>60?"train":km>6?"car":"walk"}
+
+/* ============ STATE ============ */
+const S = {trips:[], curId:null, t:0, playing:false, preview:true, tl:null, addMode:false, userCam:null, speedIdx:1, recording:false};
+const cur = ()=>S.trips.find(t=>t.id===S.curId);
+function styleOf(trip){return Object.assign({theme:"night",aspect:"9:16",labels:true,hud:true,title:true,borders:true}, trip&&trip.style||{})}
+function makeTrip(sample){
+  const now=Date.now();
+  if(sample) return {id:uid(),title:sample.title,stops:sample.stops(),style:Object.assign({},sample.style),createdAt:now,updatedAt:now};
+  return {id:uid(),title:"新しい旅",stops:[],style:{theme:"night",aspect:"9:16"},createdAt:now,updatedAt:now};
+}
+
+/* ============ CANVAS ============ */
+const cv=$("#cv"), ctx=cv.getContext("2d");
+let CW=720, CH=1280, MIN=720, U=7.2;
+const FONT='"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif';
+const EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function setAspect(a){
+  const [w,h]=ASPECTS[a]||ASPECTS["9:16"];
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
+  CW=w;CH=h;MIN=Math.min(w,h);U=MIN/100;fitStage();
+}
+function fitStage(){
+  const wrap=$("#stageWrap"); const theater=document.body.classList.contains("theater");
+  const de=document.documentElement, vw=Math.min(innerWidth,de.clientWidth||innerWidth), vh=Math.min(innerHeight,de.clientHeight||innerHeight);
+  const availW=Math.min(theater?vw:wrap.clientWidth,vw-24)-20;
+  const availH=theater?vh-110:Math.min(vh*(vw>=900?0.78:0.58),760);
+  const k=Math.min(availW/CW, availH/CH);
+  cv.style.width=Math.round(CW*k)+"px"; cv.style.height=Math.round(CH*k)+"px";
+}
+const STARS=(()=>{let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647;return Array.from({length:170},()=>({x:r(),y:r(),z:r()*1.4+.3,p:r()*6}))})();
+
+/* ============ TIMELINE & CAMERA ============ */
+function buildTL(trip){
+  const stops=trip.stops.map(s=>Object.assign({},s,{p:[s.lon,s.lat]}));
+  const tl={stops,legs:[],arrive:[],empty:!stops.length};
+  if(!stops.length){tl.total=0;tl.overCam={c:[138,32],r:1.9};return tl}
+  for(let i=1;i<stops.length;i++){
+    const a=stops[i-1].p,b=stops[i].p,d=d3.geoDistance(a,b),ip=d3.geoInterpolate(a,b);
+    tl.legs.push({i,a,b,d,km:d*R_EARTH,mode:MODES[stops[i].mode]?stops[i].mode:"plane",interp:ip,mid:ip(.5),n:Math.max(28,Math.min(240,Math.ceil(d*140))),r:clamp(d*.8,RMIN,RMAX)});
+  }
+  const INTRO=2.4;
+  tl.introCam={c:[stops[0].lon+95,clamp(stops[0].lat*.4,-35,35)],r:2.3};
+  tl.startCam=tl.legs.length?legCam(tl.legs[0],0):{c:stops[0].p,r:.05};
+  tl.introEnd=INTRO; tl.arrive[0]=INTRO-.7;
+  let t=INTRO, prev=tl.startCam;
+  tl.legs.forEach((l,k)=>{
+    const next=legCam(l,0); l.from=prev; l.h0=t;
+    let h = k===0 ? .5 : clamp(.9+.32*Math.abs(Math.log(prev.r/next.r))+.3*Math.min(2,d3.geoDistance(prev.c,next.c)/Math.max(prev.r,next.r)),.9,2.6);
+    if(stops[l.i-1].note) h+=1.4;
+    t+=h; l.t0=t; l.dur=2+.75*Math.log10(1+l.km); t+=l.dur; l.t1=t; tl.arrive[l.i]=t; prev=legCam(l,1);
+  });
+  tl.endCam=prev;
+  let cen=stops.length>1?d3.geoCentroid({type:"MultiPoint",coordinates:stops.map(s=>s.p)}):stops[0].p;
+  if(!isFinite(cen[0])||!isFinite(cen[1])) cen=stops[0].p;
+  let maxd=0; stops.forEach(s=>maxd=Math.max(maxd,d3.geoDistance(cen,s.p)));
+  tl.overCam={c:cen,r:clamp(maxd*1.2+.012,.03,2.2),dy:-.12};
+  tl.o0=t+(tl.legs.length?.9:.4)+(stops[stops.length-1].note?1.4:0);
+  tl.o1=tl.o0+2.1; tl.card=tl.o1-.5; tl.total=tl.o1+3;
+  tl.totalKm=tl.legs.reduce((a,l)=>a+l.km,0);
+  return tl;
+}
+function legCam(l,u){
+  const p=easeS(u), veh=l.interp(p), c=d3.geoInterpolate(veh,l.mid)(.6);
+  return {c, r:Math.min(RMAX,l.r*(l.mode==="plane"?1+.16*Math.sin(Math.PI*u):1))};
+}
+function mixCam(a,b,k){
+  const c=d3.geoInterpolate(a.c,b.c)(k), jump=d3.geoDistance(a.c,b.c);
+  const base=Math.exp(lerp(Math.log(a.r),Math.log(b.r),k));
+  const bump=Math.min(1.1,jump/Math.max(a.r,b.r,1e-3)*.45);
+  return {c, r:Math.min(RMAX,base*(1+bump*Math.sin(Math.PI*k))), dy:lerp(a.dy||0,b.dy||0,k)};
+}
+function camAt(tl,t){
+  if(tl.empty) return tl.overCam;
+  if(t<=tl.introEnd) return mixCam(tl.introCam,tl.startCam,easeIO(t/tl.introEnd));
+  for(const l of tl.legs){
+    if(t<l.t0) return mixCam(l.from,legCam(l,0),easeIO((t-l.h0)/(l.t0-l.h0)));
+    if(t<=l.t1) return legCam(l,(t-l.t0)/l.dur);
+  }
+  if(t<tl.o0) return tl.endCam;
+  if(t<tl.o1) return mixCam(tl.endCam,tl.overCam,easeIO((t-tl.o0)/(tl.o1-tl.o0)));
+  return tl.overCam;
+}
+function scaleFor(r){const k=MIN*.44;return r<=1.45?k/Math.sin(r):k/Math.sin(1.45)*(1.45/r)}
+function makeProj(cam){return d3.geoOrthographic().translate([CW/2,CH/2+(cam.dy||0)*CH]).scale(scaleFor(cam.r)).rotate([-cam.c[0],-cam.c[1]]).clipAngle(90).clipExtent([[-20,-20],[CW+20,CH+20]]).precision(.7)}
+
+/* ============ RENDER ============ */
+let PJ=null, CAM=null;
+function vis(g){return d3.geoDistance(g,CAM.c)<1.555}
+function fastGeo(list,closed,path){
+  const l0=CAM.c[0]*RAD,f0=CAM.c[1]*RAD,cl=Math.cos(l0),sl=Math.sin(l0),cf=Math.cos(f0),sf=Math.sin(f0);
+  const s=PJ.scale(),[cx,cy]=PJ.translate();
+  const vx=cf*cl,vy=cf*sl,vz=sf;
+  const hd=Math.hypot(CW,CH)/2, alpha=hd>=s?Math.PI/2:Math.asin(hd/s);
+  for(const it of list){
+    const dc=Math.acos(clamp(it.c[0]*vx+it.c[1]*vy+it.c[2]*vz,-1,1));
+    if(dc-it.r>alpha+.01) continue;
+    if(dc+it.r<1.55){
+      for(const a of it.xs){
+        for(let i=0;i<a.length;i+=3){
+          const A=a[i],B=a[i+1],C=a[i+2];
+          const A1=A*cl+B*sl, B1=-A*sl+B*cl;
+          const C2=-A1*sf+C*cf;
+          const X=cx+s*B1, Y=cy-s*C2;
+          if(i===0)ctx.moveTo(X,Y);else ctx.lineTo(X,Y);
+        }
+        if(closed)ctx.closePath();
+      }
+    } else path(it.geo);
+  }
+}
+function legPt(l,f){const g=l.interp(f),p=PJ(g);let y=p[1];if(l.L)y-=l.L*Math.sin(Math.PI*f);return {x:p[0],y,gy:p[1],v:vis(g)}}
+function prepLeg(l){
+  if(l.mode!=="plane"){l.L=0;return}
+  const A=PJ(l.a),B=PJ(l.b),ch=Math.hypot(B[0]-A[0],B[1]-A[1]);
+  l.L=Math.min(ch*.22,MIN*.17);
+}
+function rr(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+
+function draw(t, preview){
+  const tl=S.tl, trip=cur(), sty=styleOf(trip), th=THEMES[sty.theme]||THEMES.night;
+  CAM=(S.userCam&&!S.playing&&!S.recording)?S.userCam:camAt(tl,t);
+  if(preview&&CAM.dy) CAM=Object.assign({},CAM,{dy:0});
+  PJ=makeProj(CAM);
+  const s=PJ.scale(), [cx,cy]=PJ.translate();
+  const path=d3.geoPath(PJ,ctx);
+  // background
+  let g=ctx.createLinearGradient(0,0,0,CH); g.addColorStop(0,th.bg[0]); g.addColorStop(1,th.bg[1]);
+  ctx.fillStyle=g; ctx.fillRect(0,0,CW,CH);
+  if(th.stars){
+    const ox=CAM.c[0]/360, oy=CAM.c[1]/180;
+    for(const st of STARS){
+      const x=((st.x-ox*st.z*.25)%1+1)%1*CW, y=((st.y+oy*st.z*.15)%1+1)%1*CH;
+      ctx.globalAlpha=.25+.5*(.5+.5*Math.sin(t*1.7+st.p));
+      ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(x,y,st.z*U*.13,0,7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
+  // atmosphere glow
+  if(s<MIN*3){
+    g=ctx.createRadialGradient(cx,cy,s*.96,cx,cy,s*1.16); g.addColorStop(0,th.glow); g.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,s*1.16,0,7); ctx.fill();
+  }
+  // ocean
+  g=ctx.createRadialGradient(cx-s*.3,cy-s*.35,s*.05,cx,cy,s); g.addColorStop(0,th.ocean[0]); g.addColorStop(1,th.ocean[1]);
+  ctx.fillStyle=g; ctx.beginPath(); path({type:"Sphere"}); ctx.fill();
+  if(s<MIN*4){ctx.strokeStyle=th.grat;ctx.lineWidth=U*.12;ctx.beginPath();path(GEO.grat);ctx.stroke()}
+  const hi=s>MIN*1.25;
+  ctx.beginPath(); fastGeo(hi?GEO.L50:GEO.L110,true,path); ctx.fillStyle=th.land; ctx.fill();
+  ctx.strokeStyle=th.coast; ctx.lineWidth=U*.14; ctx.stroke();
+  if(sty.borders){ctx.beginPath();fastGeo(hi?GEO.B50:GEO.B110,false,path);ctx.strokeStyle=th.border;ctx.lineWidth=U*.12;ctx.setLineDash([U*.5,U*.35]);ctx.stroke();ctx.setLineDash([])}
+  // sphere shading
+  if(s<MIN*2.5){
+    g=ctx.createRadialGradient(cx,cy,s*.55,cx,cy,s); g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,`rgba(0,0,20,${th.shade})`);
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,s,0,7); ctx.fill();
+    g=ctx.createRadialGradient(cx-s*.38,cy-s*.42,0,cx-s*.38,cy-s*.42,s*.8); g.addColorStop(0,"rgba(255,255,255,.13)"); g.addColorStop(1,"rgba(255,255,255,0)");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,s,0,7); ctx.fill();
+  }
+  if(tl.empty){ drawEmptyHint(th); return; }
+
+  // legs
+  let curLeg=null, curP=0, curU=0;
+  for(const l of tl.legs){
+    prepLeg(l);
+    if(preview||t>=l.t1){strokeLeg(l,1,t,th,false)}
+    else if(t>=l.t0){curU=(t-l.t0)/l.dur;curP=easeS(curU);curLeg=l;strokeLeg(l,curP,t,th,true)}
+  }
+  // upcoming stops (faint)
+  if(!preview){
+    tl.stops.forEach((sp,i)=>{ if(tl.arrive[i]>t&&vis(sp.p)){const p=PJ(sp.p);ctx.fillStyle=th.pin;ctx.globalAlpha=.35;ctx.beginPath();ctx.arc(p[0],p[1],U*.7,0,7);ctx.fill();ctx.globalAlpha=1} });
+  }
+  // pins
+  const arrived=[];
+  tl.stops.forEach((sp,i)=>{ if(preview||tl.arrive[i]<=t) arrived.push(i) });
+  for(const i of arrived){
+    const sp=tl.stops[i]; if(!vis(sp.p)) continue;
+    const p=PJ(sp.p), k=preview?1:(t-tl.arrive[i])/.6;
+    drawPin(p[0],p[1],i+1,th.pin,k,t-tl.arrive[i],preview);
+  }
+  // vehicle
+  if(curLeg) drawVehicle(curLeg,curP,curU,t);
+  // labels
+  if(sty.labels) drawLabels(tl,arrived,t,preview,th,curLeg);
+  // HUD
+  if(!preview) drawHUD(tl,t,th,sty,curLeg,curP);
+}
+
+function strokeLeg(l,p,t,th,live){
+  const pts=[]; const n=l.n;
+  for(let k=0;k<=n;k++){const f=k/n;if(f>p)break;pts.push(legPt(l,f))}
+  pts.push(legPt(l,p));
+  const m=l.mode, col=MODES[m].color, w=U*.62;
+  const trace=()=>{ctx.beginPath();let on=false;for(const q of pts){if(!q.v){on=false;continue}if(!on){ctx.moveTo(q.x,q.y);on=true}else ctx.lineTo(q.x,q.y)}};
+  ctx.lineCap="round"; ctx.lineJoin="round";
+  // shadow line for flights
+  if(l.L){ctx.beginPath();let on=false;for(const q of pts){if(!q.v){on=false;continue}if(!on){ctx.moveTo(q.x,q.gy);on=true}else ctx.lineTo(q.x,q.gy)}ctx.strokeStyle="rgba(0,0,0,.13)";ctx.lineWidth=w*.8;ctx.setLineDash([U*.6,U*.9]);ctx.stroke();ctx.setLineDash([])}
+  trace(); ctx.strokeStyle=th.casing; ctx.lineWidth=w+U*.8;
+  if(m==="ship"||m==="walk"){ctx.setLineDash([.1,U*1.25]);ctx.lineWidth=w*1.5+U*.5}
+  ctx.stroke(); ctx.setLineDash([]);
+  trace(); ctx.strokeStyle=col; ctx.lineWidth=w;
+  if(m==="plane"){ctx.setLineDash([U*1.5,U*.9]);ctx.lineDashOffset=-t*U*2.2}
+  else if(m==="bike"){ctx.setLineDash([U*1,U*.7])}
+  else if(m==="ship"||m==="walk"){ctx.setLineDash([.1,U*1.25]);ctx.lineWidth=w*1.5}
+  ctx.stroke(); ctx.setLineDash([]); ctx.lineDashOffset=0;
+  if(m==="train"){trace();ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=w*.32;ctx.setLineDash([U*.7,U*.7]);ctx.stroke();ctx.setLineDash([])}
+}
+
+function drawPin(x,y,num,color,k,age,preview){
+  const R=U*2.05; let dy=0, a=1;
+  if(!preview){ if(k<1){dy=-(1-bounce(k))*U*9;a=clamp(k*3,0,1)} }
+  // ripple
+  if(!preview&&age>=0&&age<1.1){const q=age/1.1;ctx.strokeStyle=color;ctx.globalAlpha=(1-q)*.8;ctx.lineWidth=U*.4;ctx.beginPath();ctx.ellipse(x,y,R*(.6+q*2.8),R*(.25+q*1.2),0,0,7);ctx.stroke();ctx.globalAlpha=1}
+  ctx.globalAlpha=a;
+  ctx.fillStyle="rgba(0,0,0,.22)";ctx.beginPath();ctx.ellipse(x,y,R*.55,R*.22,0,0,7);ctx.fill();
+  y+=dy; const hy=y-R*1.45;
+  ctx.beginPath(); ctx.moveTo(x,y);
+  ctx.bezierCurveTo(x-R*.3,y-R*.5,x-R,hy+R*.6,x-R,hy);
+  ctx.arc(x,hy,R,Math.PI,0);
+  ctx.bezierCurveTo(x+R,hy+R*.6,x+R*.3,y-R*.5,x,y); ctx.closePath();
+  ctx.fillStyle=color; ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=U*.32; ctx.stroke();
+  ctx.fillStyle="#fff"; ctx.font=`800 ${R*(num>9?.95:1.15)}px ${FONT}`; ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText(num,x,hy+R*.05);
+  ctx.globalAlpha=1;
+}
+
+function heading(l,p){
+  const a=legPt(l,Math.max(0,p-.004)), b=legPt(l,Math.min(1,p+.004));
+  let dx=b.x-a.x, dy=b.y-a.y;
+  if(Math.hypot(dx,dy)<.3){const A=PJ(l.a),B=PJ(l.b);dx=B[0]-A[0];dy=B[1]-A[1]}
+  const ang=Math.atan2(dy,dx); return isFinite(ang)?ang:0;
+}
+function drawVehicle(l,p,u,t){
+  const P=legPt(l,p); if(!P.v) return;
+  const S0=U*6.2, m=l.mode, col=MODES[m].color, ang=heading(l,p);
+  ctx.save();
+  if(m==="plane"){
+    const lift=Math.sin(Math.PI*p), sc=1+.28*lift;
+    ctx.save();ctx.translate(P.x+U*.6*lift,P.gy+U*.4*lift);ctx.rotate(heading({...l,L:0,interp:l.interp,a:l.a,b:l.b},p));ctx.globalAlpha=.25*(1-.4*lift)+.05;planeShape(S0*.85,"#000","#000",true);ctx.restore();
+    ctx.translate(P.x,P.y);ctx.rotate(ang);ctx.shadowColor="rgba(0,0,0,.3)";ctx.shadowBlur=U*1.2;ctx.shadowOffsetY=U*.4;planeShape(S0*sc,"#fff",col);
+  } else if(m==="train"){
+    const A=legPt(l,Math.max(0,p-.01)), B=legPt(l,p); const pxPerP=Math.hypot(B.x-A.x,B.y-A.y)/Math.max(1e-6,p-Math.max(0,p-.01));
+    const carL=S0*.82, dp=pxPerP>0?carL*1.04/pxPerP:1;
+    for(let k=2;k>=0;k--){
+      const pk=p-k*dp; if(pk<0&&k>0) continue;
+      const Q=legPt(l,Math.max(0,pk)); if(!Q.v) continue;
+      ctx.save();ctx.translate(Q.x,Q.y);ctx.rotate(heading(l,Math.max(0,pk)));ctx.shadowColor="rgba(0,0,0,.3)";ctx.shadowBlur=U*.8;
+      trainCar(carL,S0*.34,col,k===0);ctx.restore();
+    }
+  } else if(m==="car"||m==="bus"){
+    ctx.translate(P.x,P.y);ctx.rotate(ang);ctx.shadowColor="rgba(0,0,0,.3)";ctx.shadowBlur=U*1;ctx.shadowOffsetY=U*.3;
+    m==="car"?carShape(S0*.95,col):busShape(S0*1.15,col);
+  } else if(m==="ship"){
+    ctx.translate(P.x,P.y);ctx.rotate(ang);shipShape(S0*1.05,col,t);
+  } else {
+    const bob=m==="walk"?Math.abs(Math.sin(t*9))*U*.9:Math.sin(t*14)*U*.2;
+    ctx.translate(P.x,P.y-bob-S0*.55);
+    ctx.shadowColor="rgba(0,0,0,.3)";ctx.shadowBlur=U*1;
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,S0*.48,0,7);ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle=col;ctx.lineWidth=U*.55;ctx.stroke();
+    ctx.font=`${S0*.55}px ${EMOJI}`;ctx.textAlign="center";ctx.textBaseline="middle";
+    const flip=Math.cos(ang)>0; if(flip)ctx.scale(-1,1);
+    ctx.fillText(MODES[m].icon,0,S0*.04);
+  }
+  ctx.restore();
+}
+function planeShape(S,fill,stroke,flat){
+  ctx.lineJoin="round";
+  ctx.beginPath();
+  ctx.moveTo(S*.16,-S*.07);ctx.lineTo(-S*.12,-S*.62);ctx.lineTo(-S*.27,-S*.62);ctx.lineTo(-S*.12,-S*.06);
+  ctx.moveTo(S*.16,S*.07);ctx.lineTo(-S*.12,S*.62);ctx.lineTo(-S*.27,S*.62);ctx.lineTo(-S*.12,S*.06);
+  ctx.moveTo(-S*.36,-S*.05);ctx.lineTo(-S*.5,-S*.25);ctx.lineTo(-S*.59,-S*.25);ctx.lineTo(-S*.52,-S*.04);
+  ctx.moveTo(-S*.36,S*.05);ctx.lineTo(-S*.5,S*.25);ctx.lineTo(-S*.59,S*.25);ctx.lineTo(-S*.52,S*.04);
+  ctx.fillStyle=fill;ctx.fill(); if(!flat){ctx.shadowColor="transparent";ctx.strokeStyle=stroke;ctx.lineWidth=S*.045;ctx.stroke()}
+  ctx.beginPath();ctx.moveTo(S*.62,0);ctx.quadraticCurveTo(S*.56,-S*.095,S*.36,-S*.095);ctx.lineTo(-S*.46,-S*.065);ctx.quadraticCurveTo(-S*.62,0,-S*.46,S*.065);ctx.lineTo(S*.36,S*.095);ctx.quadraticCurveTo(S*.56,S*.095,S*.62,0);ctx.closePath();
+  ctx.fillStyle=fill;ctx.fill();
+  if(!flat){ctx.strokeStyle=stroke;ctx.lineWidth=S*.045;ctx.stroke();
+    ctx.strokeStyle=stroke;ctx.lineWidth=S*.05;ctx.beginPath();ctx.moveTo(S*.3,0);ctx.lineTo(-S*.4,0);ctx.stroke();
+    ctx.fillStyle="#1d2440";ctx.beginPath();ctx.ellipse(S*.47,0,S*.06,S*.045,0,0,7);ctx.fill();}
+}
+function trainCar(L,W,col,lead){
+  rr(-L/2,-W/2,L,W,W*.5);ctx.fillStyle="#fff";ctx.fill();ctx.shadowColor="transparent";ctx.strokeStyle=col;ctx.lineWidth=W*.14;ctx.stroke();
+  ctx.fillStyle=col;ctx.fillRect(-L/2+W*.35,-W*.1,L-W*.7,W*.2);
+  if(lead){ctx.fillStyle="#1d2440";ctx.beginPath();ctx.ellipse(L/2-W*.38,0,W*.18,W*.3,0,0,7);ctx.fill()}
+}
+function carShape(S,col){
+  const L=S*.9,W=S*.48; rr(-L/2,-W/2,L,W,W*.32);ctx.fillStyle=col;ctx.fill();ctx.shadowColor="transparent";ctx.strokeStyle="#fff";ctx.lineWidth=S*.05;ctx.stroke();
+  ctx.fillStyle="rgba(20,28,60,.8)";rr(L*.1,-W*.36,L*.16,W*.72,W*.1);ctx.fill();rr(-L*.36,-W*.32,L*.1,W*.64,W*.08);ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,.35)";rr(-L*.24,-W*.3,L*.32,W*.6,W*.1);ctx.fill();
+  ctx.fillStyle="#ffe066";ctx.beginPath();ctx.arc(L*.44,-W*.3,S*.04,0,7);ctx.arc(L*.44,W*.3,S*.04,0,7);ctx.fill();
+}
+function busShape(S,col){
+  const L=S,W=S*.38; rr(-L/2,-W/2,L,W,W*.2);ctx.fillStyle=col;ctx.fill();ctx.shadowColor="transparent";ctx.strokeStyle="#fff";ctx.lineWidth=S*.045;ctx.stroke();
+  ctx.fillStyle="rgba(20,28,60,.8)";rr(L*.36,-W*.38,L*.09,W*.76,W*.1);ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,.45)";for(let i=0;i<3;i++){rr(-L*.36+i*L*.22,-W*.24,L*.14,W*.48,W*.08);ctx.fill()}
+}
+function shipShape(S,col,t){
+  ctx.strokeStyle="rgba(255,255,255,.55)";ctx.lineWidth=S*.05;ctx.lineCap="round";
+  for(let i=0;i<3;i++){const q=((t*1.2+i/3)%1);ctx.globalAlpha=.7*(1-q);ctx.beginPath();ctx.moveTo(-S*(.5+q*.9),-S*(.12+q*.35));ctx.lineTo(-S*(.42+q*.9),-S*(.06+q*.3));ctx.moveTo(-S*(.5+q*.9),S*(.12+q*.35));ctx.lineTo(-S*(.42+q*.9),S*(.06+q*.3));ctx.stroke()}
+  ctx.globalAlpha=1;
+  ctx.beginPath();ctx.moveTo(-S*.5,0);ctx.lineTo(-S*1.3,-S*.4);ctx.moveTo(-S*.5,0);ctx.lineTo(-S*1.3,S*.4);ctx.strokeStyle="rgba(255,255,255,.35)";ctx.stroke();
+  ctx.shadowColor="rgba(0,0,0,.3)";ctx.shadowBlur=U*1;
+  ctx.beginPath();ctx.moveTo(S*.55,0);ctx.quadraticCurveTo(S*.35,-S*.24,S*.1,-S*.24);ctx.lineTo(-S*.48,-S*.22);ctx.lineTo(-S*.48,S*.22);ctx.lineTo(S*.1,S*.24);ctx.quadraticCurveTo(S*.35,S*.24,S*.55,0);ctx.closePath();
+  ctx.fillStyle="#fff";ctx.fill();ctx.shadowColor="transparent";ctx.strokeStyle=col;ctx.lineWidth=S*.05;ctx.stroke();
+  rr(-S*.32,-S*.13,S*.4,S*.26,S*.05);ctx.fillStyle=col;ctx.fill();
+  ctx.fillStyle="#1d2440";ctx.beginPath();ctx.arc(-S*.05,0,S*.06,0,7);ctx.fill();
+}
+
+function drawLabels(tl,arrived,t,preview,th,curLeg){
+  const boxes=[]; const order=arrived.slice().reverse();
+  const last=arrived[arrived.length-1];
+  const resting = !preview && !curLeg && t<tl.o0 && last!=null;
+  for(const i of order){
+    const sp=tl.stops[i]; if(!vis(sp.p)) continue;
+    const p=PJ(sp.p); const isNew=!preview&&i===last;
+    const age=preview?9:t-tl.arrive[i]; if(age<.15) continue;
+    const pop=preview?1:easeOut((age-.15)/.4);
+    const big=isNew&&resting;
+    const fs=U*(big?3.7:3.1)*(.85+.15*pop);
+    ctx.font=`800 ${fs}px ${FONT}`;
+    const tw=ctx.measureText(sp.name).width; let w=tw+fs*1.3, h=fs*1.75;
+    let note=big&&sp.note?sp.note:""; let nw=0, nfs=fs*.72;
+    if(note){ctx.font=`700 ${nfs}px ${FONT}`;nw=ctx.measureText(note).width;w=Math.max(w,nw+fs*1.3);h+=nfs*1.5}
+    const x=p[0]-w/2, y=p[1]-U*2.05*2.6-h-U*.4;
+    const box=[x,y,w,h];
+    if(!big&&boxes.some(b=>!(x+w<b[0]||b[0]+b[2]<x||y+h<b[1]||b[1]+b[3]<y))) continue;
+    boxes.push(box);
+    ctx.globalAlpha=pop*(preview||big||i===last?1:.9);
+    ctx.shadowColor="rgba(0,0,0,.25)";ctx.shadowBlur=U*.8;ctx.shadowOffsetY=U*.2;
+    rr(x,y,w,h,h*.5>fs*1.2?fs*.8:h*.5);ctx.fillStyle=th.lbBg;ctx.fill();ctx.shadowColor="transparent";
+    ctx.beginPath();ctx.moveTo(p[0]-U*.9,y+h-1);ctx.lineTo(p[0],y+h+U*.9);ctx.lineTo(p[0]+U*.9,y+h-1);ctx.fill();
+    ctx.fillStyle=th.lbTx;ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.font=`800 ${fs}px ${FONT}`;ctx.fillText(sp.name,p[0],y+fs*.9);
+    if(note){ctx.font=`700 ${nfs}px ${FONT}`;ctx.globalAlpha*=.75;ctx.fillText(note,p[0],y+fs*1.75+nfs*.55)}
+    ctx.globalAlpha=1;
+  }
+}
+
+function pill(text,x,y,fs,th,align,alpha){
+  ctx.font=`800 ${fs}px ${FONT}`; const w=ctx.measureText(text).width+fs*1.4, h=fs*2;
+  const X=align==="center"?x-w/2:align==="right"?x-w:x;
+  ctx.globalAlpha=alpha==null?1:alpha;
+  rr(X,y,w,h,h/2);ctx.fillStyle=th.hudBg;ctx.fill();
+  ctx.fillStyle=th.hud;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(text,X+w/2,y+h/2+fs*.04);
+  ctx.globalAlpha=1; return w;
+}
+function drawHUD(tl,t,th,sty,curLeg,curP){
+  const trip=cur(); const title=(trip&&trip.title)||"";
+  const pad=U*3.2;
+  // intro title
+  if(sty.title&&t<tl.introEnd+.6){
+    const a=clamp(t/.5,0,1)*clamp((tl.introEnd+.6-t)/.6,0,1);
+    ctx.globalAlpha=a; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.shadowColor="rgba(0,0,0,.45)";ctx.shadowBlur=U*2;
+    ctx.fillStyle=th.hud; let fs=U*7.2; ctx.font=`800 ${fs}px ${FONT}`;
+    while(ctx.measureText(title).width>CW*.86&&fs>U*3){fs-=U*.3;ctx.font=`800 ${fs}px ${FONT}`}
+    ctx.fillText(title,CW/2,CH*.2);
+    ctx.font=`700 ${U*3}px ${FONT}`;ctx.globalAlpha=a*.85;
+    ctx.fillText(`${tl.stops.length}か所 · ${fmtKm(tl.totalKm)} km`,CW/2,CH*.2+fs*.95);
+    ctx.shadowColor="transparent";ctx.globalAlpha=1;
+  }
+  if(!sty.hud) return;
+  const showSmall=t>=tl.introEnd-.2&&t<tl.card;
+  if(showSmall&&title) pill(title,pad,pad,U*2.6,th,"left",clamp((t-tl.introEnd+.2)/.5,0,1)*clamp((tl.card-t)/.4,0,1));
+  // leg banner
+  if(curLeg){
+    const u=(t-curLeg.t0)/curLeg.dur, a=clamp(u/.12,0,1)*clamp((1-u)/.12,0,1);
+    const A=tl.stops[curLeg.i-1].name,B=tl.stops[curLeg.i].name;
+    pill(`${MODES[curLeg.mode].icon}  ${A} → ${B}`,CW/2,pad+U*6.6,U*3.1,th,"center",a);
+  }
+  // odometer
+  let km=0; for(const l of tl.legs){ if(t>=l.t1) km+=l.km; else if(t>=l.t0) km+=l.km*curP; }
+  const arrivedN=tl.arrive.filter(a=>a<=t).length;
+  if(t<tl.card){
+    const a=clamp((t-.3)/.6,0,1)*clamp((tl.card-t)/.4,0,1);
+    const by=CH-pad-U*5.2;
+    pill(`🧭 ${fmtKm(km)} km`,pad,by,U*2.9,th,"left",a);
+    pill(`📍 ${arrivedN} / ${tl.stops.length}`,CW-pad,by,U*2.9,th,"right",a);
+  }
+  // progress bar
+  ctx.fillStyle=th.hudBg; rr(pad,CH-pad,CW-pad*2,U*.7,U*.35); ctx.fill();
+  ctx.fillStyle=th.pin; rr(pad,CH-pad,Math.max(U*.7,(CW-pad*2)*clamp(t/tl.total,0,1)),U*.7,U*.35); ctx.fill();
+  // end card
+  if(t>=tl.card) drawEndCard(tl,t,th,title);
+}
+function drawEndCard(tl,t,th,title){
+  const a=easeOut((t-tl.card)/.7);
+  const countries=new Set(tl.stops.map(s=>s.co).filter(Boolean));
+  const modes={}; tl.legs.forEach(l=>modes[l.mode]=(modes[l.mode]||0)+1);
+  const w=Math.min(CW*.84,U*82), h=U*31, x=(CW-w)/2, y=CH-U*6-h-(1-a)*U*6;
+  ctx.globalAlpha=a; ctx.shadowColor="rgba(0,0,0,.3)";ctx.shadowBlur=U*3;
+  rr(x,y,w,h,U*3.5); ctx.fillStyle=th.lbBg; ctx.fill(); ctx.shadowColor="transparent";
+  ctx.fillStyle=th.lbTx; ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.font=`700 ${U*2.3}px ${FONT}`; ctx.globalAlpha=a*.6; ctx.fillText("TRIP COMPLETE",CW/2,y+U*4.2);
+  ctx.globalAlpha=a; let fs=U*4.4; ctx.font=`800 ${fs}px ${FONT}`;
+  while(ctx.measureText(title).width>w*.88&&fs>U*2.4){fs-=U*.2;ctx.font=`800 ${fs}px ${FONT}`}
+  ctx.fillText(title,CW/2,y+U*9);
+  const cols=[[fmtKm(tl.totalKm*clamp((t-tl.card)/1.2,0,1)),"km"],[tl.stops.length,"か所"],[countries.size||"–","の国・地域"]];
+  cols.forEach((c,k)=>{const cx=x+w*(k+.5)/3;ctx.font=`800 ${U*4.6}px ${FONT}`;ctx.fillText(c[0],cx,y+U*16);ctx.font=`700 ${U*2.1}px ${FONT}`;ctx.globalAlpha=a*.6;ctx.fillText(c[1],cx,y+U*20);ctx.globalAlpha=a});
+  const ms=Object.entries(modes).map(([m,n])=>`${MODES[m].icon} ×${n}`).join("    ");
+  ctx.font=`700 ${U*2.6}px ${FONT}`; ctx.fillText(ms,CW/2,y+U*26);
+  ctx.globalAlpha=1;
+}
+function drawEmptyHint(th){
+  const fs=U*3.2;ctx.textAlign="center";ctx.textBaseline="middle";
+  pill("地名を検索して旅をはじめよう ✈️",CW/2,CH*.82,fs,th,"center",1);
+}
+
+/* ============ PLAYBACK ============ */
+let raf=null,lastTs=0;
+function frame(){ draw(S.t,S.preview); updateScrub(); }
+function tick(ts){
+  if(!S.playing){raf=null;return}
+  const dt=lastTs?Math.min(.1,(ts-lastTs)/1000):0; lastTs=ts;
+  S.t+=dt*SPEEDS[S.speedIdx];
+  if(S.t>=S.tl.total){S.t=S.tl.total;S.playing=false;frame();setPlayIcon();if(S.recording)finishRec();return}
+  frame(); raf=requestAnimationFrame(tick);
+}
+function play(fromStart){
+  if(!S.tl||S.tl.empty){toast("まず地点を2つ以上追加してね");return}
+  if(fromStart||S.preview||S.t>=S.tl.total) S.t=0;
+  S.preview=false; S.userCam=null; S.playing=true; lastTs=0; setPlayIcon();
+  if(!raf) raf=requestAnimationFrame(tick);
+}
+function pause(){S.playing=false;setPlayIcon()}
+function setPlayIcon(){$("#btnPlay").textContent=S.playing?"❚❚":"▶"}
+function updateScrub(){
+  const tot=S.tl?S.tl.total:0, t=S.preview?tot:S.t;
+  $("#scrub").value=tot?Math.round(t/tot*1000):1000;
+  $("#tNow").textContent=fmtT(t/SPEEDS[S.speedIdx]); $("#tAll").textContent=fmtT(tot/SPEEDS[S.speedIdx]);
+}
+function rebuild(keepT){
+  const trip=cur(); S.tl=buildTL(trip||{stops:[]});
+  setAspect(styleOf(trip).aspect);
+  if(!keepT){S.playing=false;S.preview=true;S.t=S.tl.total;setPlayIcon()}
+  frame();
+}
+
+/* ============ RECORDING ============ */
+let recorder=null, recChunks=[], recMime="";
+function pickMime(){
+  if(typeof MediaRecorder==="undefined") return null;
+  const c=["video/mp4;codecs=avc1.42E01E","video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"];
+  for(const m of c){try{if(MediaRecorder.isTypeSupported(m))return m}catch(e){}}
+  return null;
+}
+async function startRec(){
+  if(!S.tl||S.tl.empty||S.tl.legs.length<1){toast("地点を2つ以上追加してから録画してね");return}
+  const dl=await getDownloads();
+  const mime=pickMime();
+  if(!mime||!cv.captureStream){
+    openModal(`<h3>このビューでは動画保存が使えません</h3><p>代わりに「シアター表示（⛶）」で全画面にして、スマホの画面収録で記録できます。</p><div class="acts"><button class="btn sec" data-x>閉じる</button><button class="btn" id="goTheater">シアター表示</button></div>`);
+    $("#goTheater").onclick=()=>{closeModal();setTheater(true);play(true)};return;
+  }
+  openModal(`<h3>🎬 動画を書き出す</h3><p>アニメーションを最初から再生しながら録画します（約${fmtT(S.tl.total/SPEEDS[S.speedIdx])}）。終わるまでこの画面のままにしてね。</p><p style="font-size:12px;color:#7a7690">サイズ: ${CW}×${CH}（${styleOf(cur()).aspect}）· ${mime.includes("mp4")?"MP4":"WebM"}</p><div class="acts"><button class="btn sec" data-x>キャンセル</button><button class="btn" id="goRec">録画スタート</button></div>`);
+  $("#goRec").onclick=()=>{closeModal();beginRec(mime)};
+}
+function beginRec(mime){
+  recMime=mime; recChunks=[];
+  try{
+    const stream=cv.captureStream(30);
+    recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8e6});
+  }catch(e){toast("録画を開始できませんでした");return}
+  recorder.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data)};
+  recorder.onstop=saveRec;
+  S.recording=true; document.body.classList.add("recording"); $("#recOverlay").classList.add("show");
+  S.t=0;S.preview=false;S.userCam=null;frame();
+  recorder.start(500);
+  setTimeout(()=>play(true),250);
+}
+function finishRec(){ setTimeout(()=>{try{recorder&&recorder.state!=="inactive"&&recorder.stop()}catch(e){}},700) }
+async function saveRec(){
+  S.recording=false; $("#recOverlay").classList.remove("show"); document.body.classList.remove("recording");
+  const blob=new Blob(recChunks,{type:recMime.split(";")[0]}); recChunks=[];
+  const ext=recMime.includes("mp4")?"mp4":"webm";
+  const name=((cur()&&cur().title)||"tabiji").replace(/[\\/:*?"<>|]/g,"_")+"."+ext;
+  const dl=await getDownloads();
+  if(!dl){ offerFile(name,blob,"🎬 動画ができました","スマホは「保存・共有」から写真アプリやSNSへ、パソコンは「ダウンロード」で保存できます。"); return; }
+  try{ await dl.save({filename:name,data:blob}); toast("動画を保存しました 🎉"); }
+  catch(e){ const c=e&&e.code; toast(c==="declined"?"保存をキャンセルしました":c==="too_large"?"ファイルが大きすぎました。比率を小さめにして再試行してね":"保存できませんでした（"+(c||"error")+"）",3200); }
+}
+/* claude.ai の外（minervalab.jp など）で使うファイル保存 */
+function downloadBlob(name,blob){
+  const url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download=name; a.rel="noopener"; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function offerFile(name,blob,title,msg){
+  let file=null; try{file=new File([blob],name,{type:blob.type})}catch(e){}
+  const canShare=!!(file&&navigator.canShare&&navigator.share&&(()=>{try{return navigator.canShare({files:[file]})}catch(e){return false}})());
+  const mb=(blob.size/1048576).toFixed(1);
+  openModal(`<h3>${title}</h3><p>${msg}</p><p style="font-size:12px;color:#7a7690">${esc(name)} · ${mb} MB</p><div class="acts"><button class="btn sec" data-x>閉じる</button>${canShare?`<button class="btn sec" id="fDl">ダウンロード</button><button class="btn" id="fShare">保存・共有</button>`:`<button class="btn" id="fDl">ダウンロード</button>`}</div>`);
+  $("#fDl").onclick=()=>{downloadBlob(name,blob);closeModal();toast("ダウンロードしました 🎉")};
+  if(canShare) $("#fShare").onclick=async()=>{try{await navigator.share({files:[file],title:name.replace(/\.[^.]+$/,"")});closeModal()}catch(e){if(!e||e.name!=="AbortError")toast("共有できませんでした。ダウンロードを試してね",3000)}};
+}
+
+/* ============ PLATFORM CAPABILITIES ============ */
+function cap(name){
+  return new Promise(res=>{
+    let tries=0;
+    const go=()=>{
+      if(window.claude&&typeof window.claude.use==="function"){window.claude.use(name).then(res,()=>res(null))}
+      else if(window.self!==window.top&&++tries<12) setTimeout(go,250); else res(null);
+    }; go();
+  });
+}
+let _dl; function getDownloads(){return _dl||(_dl=cap("downloads"))}
+const Cloud={col:null,ready:false,writing:new Set(),pending:new Set(),timers:{}};
+function setSync(mode){
+  const el=$("#sync");
+  el.textContent=mode==="cloud"?"☁︎ クラウド保存":mode==="local"?"📱 この端末に保存":"準備中…";
+  $("#storeNote").textContent=mode==="cloud"
+    ?"旅はあなたのアカウントに自動保存されます（他の人には見えません）。念のため書き出しでバックアップもできます。"
+    :"旅はこのブラウザに保存されています。消えると困る旅は「書き出し」でJSONを保存しておいてね。";
+}
+const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej({code:"timeout"}),ms))]);
+function body(trip){const o=JSON.parse(JSON.stringify(trip));delete o.id;return o}
+async function initCloud(){
+  setSync("local");
+  const [db,user]=await Promise.all([cap("db"),cap("user")]);
+  if(!db||!user) return;
+  let id=null; try{id=await user.id()}catch(e){}
+  if(!id) return;
+  try{
+    Cloud.col=db.collection("data/users/"+id);
+    const snap=await withTimeout(Cloud.col.get(),10000);
+    const remote=snap.docs.filter(d=>d.exists).map(d=>Object.assign({},d.data(),{id:d.id}));
+    const byId=new Map(S.trips.map(t=>[t.id,t])); const toUpload=new Set(S.trips.map(t=>t.id));
+    let changedCur=false;
+    for(const r of remote){
+      if(!r||!Array.isArray(r.stops)) continue;
+      const l=byId.get(r.id);
+      if(!l||(r.updatedAt||0)>(l.updatedAt||0)){byId.set(r.id,r);if(r.id===S.curId)changedCur=true}
+      if(l&&(l.updatedAt||0)<=(r.updatedAt||0)) toUpload.delete(r.id);
+    }
+    // a local starter trip that was never edited shouldn't be uploaded when the cloud has trips
+    S.trips=[...byId.values()].filter(t=>!(t._starter&&remote.length&&!t._edited)).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    if(!S.trips.find(t=>t.id===S.curId)){S.curId=S.trips[0]&&S.trips[0].id;changedCur=true}
+    if(!S.trips.length){const t=makeTrip(SAMPLES[0]);S.trips=[t];S.curId=t.id;changedCur=true}
+    LS.set("tabiji.trips",S.trips);
+    Cloud.ready=true; setSync("cloud");
+    for(const t of S.trips) if(toUpload.has(t.id)) scheduleCloud(t.id,50);
+    renderTrips(); if(changedCur&&!S.playing){renderAll();rebuild()}
+  }catch(e){Cloud.ready=false;setSync("local")}
+}
+function scheduleCloud(id,ms){ if(!Cloud.ready)return; clearTimeout(Cloud.timers[id]); Cloud.timers[id]=setTimeout(()=>flushCloud(id),ms==null?900:ms) }
+async function flushCloud(id){
+  if(Cloud.writing.has(id)){Cloud.pending.add(id);return}
+  Cloud.writing.add(id);
+  const trip=S.trips.find(t=>t.id===id);
+  try{ if(trip) await Cloud.col.doc(id).set(body(trip)); else await Cloud.col.doc(id).delete(); }
+  catch(e){
+    const c=e&&e.code;
+    if(c==="quota_exceeded") toast("クラウドの保存容量がいっぱいです。古い旅を削除してね",3500);
+    else if(c==="unavailable"){Cloud.writing.delete(id);setTimeout(()=>flushCloud(id),1500+Math.random()*1000);return}
+    else if(c==="invalid_argument"||c==="revoked"||c==="not_granted"){Cloud.ready=false;setSync("local")}
+  }
+  Cloud.writing.delete(id);
+  if(Cloud.pending.delete(id)) flushCloud(id);
+}
+function persist(trip){
+  if(trip){trip.updatedAt=Date.now();trip._edited=true;delete trip._starter}
+  LS.set("tabiji.trips",S.trips); LS.set("tabiji.cur",S.curId);
+  if(trip) scheduleCloud(trip.id);
+}
+
+/* ============ UI ============ */
+function openModal(html){$("#sheet").innerHTML=html;$("#modal").classList.remove("hidden");$("#sheet").querySelectorAll("[data-x]").forEach(b=>b.onclick=closeModal)}
+function closeModal(){$("#modal").classList.add("hidden")}
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+
+function renderAll(){renderRoute();renderDesign();renderTrips()}
+function tripKm(t){let s=0;for(let i=1;i<t.stops.length;i++)s+=d3.geoDistance([t.stops[i-1].lon,t.stops[i-1].lat],[t.stops[i].lon,t.stops[i].lat])*R_EARTH;return s}
+function renderRoute(){
+  const trip=cur(); if(!trip) return;
+  const ti=$("#tripTitle"); if(document.activeElement!==ti) ti.value=trip.title||"";
+  const box=$("#stops");
+  if(!trip.stops.length){box.innerHTML=`<div class="empty">まだ地点がありません。<br>上の検索から出発地を追加しよう 🌏</div>`;$("#summary").textContent="";return}
+  let h="";
+  trip.stops.forEach((s,i)=>{
+    if(i>0){
+      const a=trip.stops[i-1], km=d3.geoDistance([a.lon,a.lat],[s.lon,s.lat])*R_EARTH, m=MODES[s.mode]?s.mode:"plane";
+      h+=`<div class="leg"><select data-mode="${i}" aria-label="移動手段">${Object.entries(MODES).map(([k,v])=>`<option value="${k}"${k===m?" selected":""}>${v.icon} ${v.ja}</option>`).join("")}</select><span class="km">${fmtKm(km)} km</span></div>`;
+    }
+    h+=`<div class="stop"><span class="num">${i+1}</span><button class="sname" data-edit="${i}">${esc(s.name)}${s.note?`<small>${esc(s.note)}</small>`:""}</button><button class="mini" data-up="${i}" ${i===0?"disabled":""} aria-label="上へ">▲</button><button class="mini" data-down="${i}" ${i===trip.stops.length-1?"disabled":""} aria-label="下へ">▼</button><button class="mini" data-del="${i}" aria-label="削除">✕</button></div>`;
+  });
+  box.innerHTML=h;
+  const cs=new Set(trip.stops.map(s=>s.co).filter(Boolean));
+  $("#summary").textContent=`${trip.stops.length}か所 · ${fmtKm(tripKm(trip))} km${cs.size?` · ${cs.size}の国・地域`:""}`;
+}
+$("#stops").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return; const trip=cur();
+  if(b.dataset.del!=null){trip.stops.splice(+b.dataset.del,1);if(trip.stops[0])trip.stops[0].mode=null;changed()}
+  else if(b.dataset.up!=null){const i=+b.dataset.up;swap(trip,i,i-1)}
+  else if(b.dataset.down!=null){const i=+b.dataset.down;swap(trip,i,i+1)}
+  else if(b.dataset.edit!=null) editStop(+b.dataset.edit);
+});
+function swap(trip,i,j){const a=trip.stops;[a[i],a[j]]=[a[j],a[i]];a.forEach((s,k)=>{if(k===0)s.mode=null;else if(!s.mode)s.mode=defaultMode(a[k-1],s)});changed()}
+$("#stops").addEventListener("change",e=>{const s=e.target.closest("select[data-mode]");if(!s)return;cur().stops[+s.dataset.mode].mode=s.value;changed()});
+function changed(){persist(cur());renderRoute();renderTrips();rebuild()}
+function editStop(i){
+  const s=cur().stops[i];
+  openModal(`<h3>地点 ${i+1} を編集</h3><label>名前</label><input id="eName" maxlength="30" value="${esc(s.name)}"><label>メモ（到着時に表示）</label><input id="eNote" maxlength="40" placeholder="例: 朝ごはんが最高だった" value="${esc(s.note||"")}"><div class="acts"><button class="btn danger" id="eDel">削除</button><button class="btn sec" data-x>キャンセル</button><button class="btn" id="eOk">保存</button></div>`);
+  $("#eOk").onclick=()=>{s.name=$("#eName").value.trim()||s.name;s.note=$("#eNote").value.trim();closeModal();changed()};
+  $("#eDel").onclick=()=>{cur().stops.splice(i,1);if(cur().stops[0])cur().stops[0].mode=null;closeModal();changed()};
+}
+function addStop(o){
+  const trip=cur(); const prev=trip.stops[trip.stops.length-1];
+  const s={id:uid(),name:o.name,lat:o.lat,lon:o.lon,co:o.co||"",note:"",mode:prev?defaultMode(prev,o):null};
+  trip.stops.push(s); changed(); toast(`${o.name} を追加しました`);
+  setTimeout(()=>{const el=$("#stops").lastElementChild;el&&el.scrollIntoView({block:"nearest",behavior:"smooth"})},50);
+}
+$("#tripTitle").addEventListener("input",e=>{const t=cur();t.title=e.target.value;persist(t);renderTrips();if(!S.playing)frame()});
+
+// search
+let suggIdx=-1, suggList=[];
+function search(q){
+  q=q.trim(); const box=$("#sugg");
+  if(!q){box.classList.remove("show");return}
+  const m=q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+  let res=[];
+  if(m&&Math.abs(+m[1])<=90&&Math.abs(+m[2])<=180) res.push({ja:`地点 (${(+m[1]).toFixed(3)}, ${(+m[2]).toFixed(3)})`,lat:+m[1],lon:+m[2],co:"",custom:true});
+  const k=q.toLowerCase().replace(/\s+/g,"");
+  const scored=[];
+  for(const c of CITIES){const i=c.key.indexOf(k);if(i<0)continue;scored.push([c.ja.toLowerCase().startsWith(k)||c.en.toLowerCase().replace(/\s+/g,"").startsWith(k)?0:1,c])}
+  scored.sort((a,b)=>a[0]-b[0]); res=res.concat(scored.slice(0,8).map(x=>x[1]));
+  suggList=res; suggIdx=-1;
+  if(!res.length){box.innerHTML=`<div style="padding:12px 14px;font-size:13px;color:#7a7690;line-height:1.6">見つかりませんでした。「📍 地図をタップして追加」か、緯度,経度（例: 35.68, 139.76）で追加できます。</div>`;box.classList.add("show");return}
+  box.innerHTML=res.map((c,i)=>`<button data-i="${i}"><span>${esc(c.ja)}${c.en?`<small>${esc(c.en)}</small>`:""}</span><small>${esc(c.co||"")}</small></button>`).join("");
+  box.classList.add("show");
+}
+$("#q").addEventListener("input",e=>search(e.target.value));
+$("#q").addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&!e.isComposing){e.preventDefault();const c=suggList[Math.max(0,suggIdx)];if(c)pickSugg(c)}
+  else if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();suggIdx=clamp(suggIdx+(e.key==="ArrowDown"?1:-1),0,suggList.length-1);[...$("#sugg").children].forEach((b,i)=>b.classList&&b.classList.toggle("hl",i===suggIdx))}
+  else if(e.key==="Escape")$("#sugg").classList.remove("show");
+});
+$("#sugg").addEventListener("pointerdown",e=>e.preventDefault());
+$("#sugg").addEventListener("click",e=>{const b=e.target.closest("button[data-i]");if(b)pickSugg(suggList[+b.dataset.i])});
+function pickSugg(c){
+  if(c.custom){askName(c.ja,n=>addStop({name:n,lat:c.lat,lon:c.lon,co:""}))}
+  else addStop({name:c.ja,lat:c.lat,lon:c.lon,co:c.co});
+  $("#q").value="";$("#sugg").classList.remove("show");
+}
+document.addEventListener("click",e=>{if(!e.target.closest(".search"))$("#sugg").classList.remove("show")});
+function askName(def,cb){
+  openModal(`<h3>📍 地点の名前</h3><input id="nName" maxlength="30" value="${esc(def)}"><div class="acts"><button class="btn sec" data-x>キャンセル</button><button class="btn" id="nOk">追加</button></div>`);
+  const inp=$("#nName"); setTimeout(()=>{inp.focus();inp.select()},50);
+  const ok=()=>{const v=inp.value.trim()||def;closeModal();cb(v)};
+  $("#nOk").onclick=ok; inp.onkeydown=e=>{if(e.key==="Enter"&&!e.isComposing)ok()};
+}
+
+// add on map
+$("#btnAddMap").onclick=()=>{
+  S.addMode=!S.addMode; $("#btnAddMap").classList.toggle("on",S.addMode); cv.classList.toggle("adding",S.addMode);
+  $("#stageMsg").classList.toggle("show",S.addMode);
+  $("#btnAddMap").textContent=S.addMode?"✓ 追加モード中（タップで終了）":"📍 地図をタップして追加";
+  if(S.addMode){pause();if(!S.preview){S.preview=true;S.t=S.tl.total};frame();if(innerWidth<900)$("#stageWrap").scrollIntoView({behavior:"smooth",block:"start"})}
+};
+// pointer: drag rotate / pinch zoom / tap add
+const ptrs=new Map(); let drag=null, pinch=null;
+function toCanvas(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*CW/r.width,(e.clientY-r.top)*CH/r.height]}
+function liveCam(){return S.userCam||camAt(S.tl,S.preview?S.tl.total:S.t)}
+cv.addEventListener("pointerdown",e=>{
+  if(S.recording||!S.tl) return;
+  cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,toCanvas(e));
+  if(ptrs.size===1){drag={p0:toCanvas(e),cam:Object.assign({},liveCam()),moved:false}}
+  else if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d0:Math.hypot(a[0]-b[0],a[1]-b[1]),cam:Object.assign({},liveCam())};if(drag)drag.moved=true}
+});
+cv.addEventListener("pointermove",e=>{
+  if(!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId,toCanvas(e));
+  if(pinch&&ptrs.size>=2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);S.userCam={c:pinch.cam.c,r:clamp(pinch.cam.r*pinch.d0/Math.max(d,1),.004,2.6)};if(S.playing)pause();frame();return}
+  if(!drag) return;
+  const p=toCanvas(e), dx=p[0]-drag.p0[0], dy=p[1]-drag.p0[1];
+  if(!drag.moved&&Math.hypot(dx,dy)<8) return;
+  drag.moved=true; if(S.playing)pause();
+  const s=scaleFor(drag.cam.r), k=180/Math.PI/s;
+  S.userCam={c:[drag.cam.c[0]-dx*k,clamp(drag.cam.c[1]+dy*k,-85,85)],r:drag.cam.r}; frame();
+});
+function endPtr(e){
+  if(!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId);
+  if(ptrs.size<2) pinch=null;
+  if(ptrs.size===0&&drag){
+    if(!drag.moved){
+      if(S.addMode){
+        const p=toCanvas(e); const ll=PJ.invert(p);
+        if(ll&&isFinite(ll[0])&&d3.geoDistance(ll,CAM.c)<Math.PI/2){
+          const n=cur().stops.length+1;
+          askName(`地点 ${n}`,name=>addStop({name,lat:+ll[1].toFixed(4),lon:+ll[0].toFixed(4),co:""}));
+        }
+      } else { S.playing?pause():play() }
+    }
+    drag=null;
+  }
+}
+cv.addEventListener("pointerup",endPtr); cv.addEventListener("pointercancel",endPtr);
+cv.addEventListener("wheel",e=>{if(S.recording||!S.tl)return;e.preventDefault();const c=liveCam();S.userCam={c:c.c,r:clamp(c.r*Math.exp(e.deltaY*.0015),.004,2.6)};if(S.playing)pause();frame()},{passive:false});
+
+// design
+function renderDesign(){
+  const sty=styleOf(cur());
+  $("#themes").innerHTML=Object.entries(THEMES).map(([k,t])=>`<button class="theme${k===sty.theme?" on":""}" data-theme="${k}"><i style="background:linear-gradient(160deg,${t.bg[0]},${t.bg[1]})"><b style="position:absolute;width:34px;height:34px;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 35%,${t.ocean[0]},${t.ocean[1]});box-shadow:inset -4px -3px 0 ${t.land}"></b></i>${t.name}</button>`).join("");
+  $("#aspects").innerHTML=Object.keys(ASPECTS).map(a=>`<button data-aspect="${a}" class="${a===sty.aspect?"on":""}">${a}${a==="9:16"?"<br><small>ストーリー</small>":a==="4:5"?"<br><small>フィード</small>":a==="1:1"?"<br><small>正方形</small>":"<br><small>横長</small>"}</button>`).join("");
+  const tg=[["labels","地名ラベル"],["hud","距離メーター・進行状況"],["title","オープニングのタイトル"],["borders","国境線"]];
+  $("#toggles").innerHTML=tg.map(([k,n])=>`<label class="tog">${n}<input type="checkbox" class="sw" data-opt="${k}"${sty[k]?" checked":""}></label>`).join("");
+}
+function setStyle(k,v){const t=cur();t.style=Object.assign({},t.style,{[k]:v});persist(t);renderDesign();rebuild(true);if(!S.playing)frame()}
+$("#themes").addEventListener("click",e=>{const b=e.target.closest("[data-theme]");if(b)setStyle("theme",b.dataset.theme)});
+$("#aspects").addEventListener("click",e=>{const b=e.target.closest("[data-aspect]");if(b)setStyle("aspect",b.dataset.aspect)});
+$("#toggles").addEventListener("change",e=>{const c=e.target.closest("[data-opt]");if(c)setStyle(c.dataset.opt,c.checked)});
+
+// trips
+function renderTrips(){
+  $("#tripList").innerHTML=S.trips.map(t=>`<div class="trip${t.id===S.curId?" on":""}"><button class="tt" data-open="${t.id}">${esc(t.title||"無題の旅")}<small>${t.stops.length}か所 · ${fmtKm(tripKm(t))} km</small></button><button class="mini" data-dup="${t.id}" aria-label="複製">⧉</button><button class="mini" data-rm="${t.id}" aria-label="削除">🗑</button></div>`).join("")||`<div class="empty">保存した旅はありません</div>`;
+}
+$("#samples").innerHTML=SAMPLES.map((s,i)=>`<button class="sample" data-sample="${i}">${esc(s.title)}<small>${esc(s.sub)}</small></button>`).join("");
+$("#samples").addEventListener("click",e=>{const b=e.target.closest("[data-sample]");if(!b)return;const t=makeTrip(SAMPLES[+b.dataset.sample]);S.trips.unshift(t);openTrip(t.id);persist(t);toast("サンプルを追加しました");play(true)});
+$("#tripList").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.open){openTrip(b.dataset.open);switchTab("route")}
+  else if(b.dataset.dup){const s=S.trips.find(t=>t.id===b.dataset.dup);const c=JSON.parse(JSON.stringify(s));c.id=uid();c.title=(s.title||"")+" のコピー";c.createdAt=Date.now();delete c._starter;S.trips.unshift(c);persist(c);renderTrips();toast("複製しました")}
+  else if(b.dataset.rm){
+    const t=S.trips.find(x=>x.id===b.dataset.rm);
+    openModal(`<h3>「${esc(t.title||"無題の旅")}」を削除しますか？</h3><p>この操作は元に戻せません。</p><div class="acts"><button class="btn sec" data-x>キャンセル</button><button class="btn danger" id="rmOk">削除する</button></div>`);
+    $("#rmOk").onclick=()=>{S.trips=S.trips.filter(x=>x.id!==t.id);if(Cloud.ready)scheduleCloud(t.id,0);if(S.curId===t.id){if(!S.trips.length)S.trips.push(makeTrip());S.curId=S.trips[0].id;renderAll();rebuild()}persist(null);renderTrips();closeModal()};
+  }
+});
+function openTrip(id){S.curId=id;LS.set("tabiji.cur",id);S.userCam=null;renderAll();rebuild()}
+$("#btnNew").onclick=()=>{const t=makeTrip();S.trips.unshift(t);persist(t);openTrip(t.id);switchTab("route");setTimeout(()=>$("#q").focus(),100)};
+$("#btnExport").onclick=async()=>{
+  const data=JSON.stringify({app:"tabiji",version:1,trips:S.trips.map(t=>Object.assign(body(t),{id:t.id}))},null,1);
+  const dl=await getDownloads();
+  if(dl){try{await dl.save({filename:"tabiji-trips.json",data});toast("書き出しました");return}catch(e){if(e&&e.code==="declined")return}}
+  else{try{downloadBlob("tabiji-trips.json",new Blob([data],{type:"application/json"}));toast("書き出しました");return}catch(e){}}
+  try{await navigator.clipboard.writeText(data);toast("JSONをクリップボードにコピーしました")}catch(e){toast("書き出しできませんでした")}
+};
+$("#btnImport").onclick=()=>$("#fileIn").click();
+$("#fileIn").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{const j=JSON.parse(await f.text());const arr=(j.trips||[j]).filter(t=>t&&Array.isArray(t.stops));
+    let n=0;for(const t of arr){const c={id:uid(),title:String(t.title||"読み込んだ旅").slice(0,40),style:t.style||{},createdAt:Date.now(),updatedAt:Date.now(),stops:t.stops.filter(s=>isFinite(s.lat)&&isFinite(s.lon)).map(s=>({id:uid(),name:String(s.name||"地点").slice(0,30),lat:+s.lat,lon:+s.lon,co:s.co||"",note:String(s.note||"").slice(0,40),mode:MODES[s.mode]?s.mode:null}))};S.trips.unshift(c);persist(c);n++}
+    renderTrips();toast(`${n}件の旅を読み込みました`);
+  }catch(err){toast("読み込めないファイルでした")}
+  e.target.value="";
+};
+
+// tabs
+function switchTab(n){document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===n));document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="tab-"+n))}
+document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)switchTab(b.dataset.tab)});
+
+// controls
+$("#btnPlay").onclick=()=>{if(S.recording)return;S.playing?pause():play()};
+$("#scrub").addEventListener("input",e=>{if(S.recording||!S.tl)return;S.playing=false;setPlayIcon();S.preview=false;S.userCam=null;S.t=e.target.value/1000*S.tl.total;draw(S.t,false);$("#tNow").textContent=fmtT(S.t/SPEEDS[S.speedIdx])});
+$("#btnSpeed").onclick=()=>{if(S.recording)return;S.speedIdx=(S.speedIdx+1)%SPEEDS.length;$("#btnSpeed").textContent=SPEEDS[S.speedIdx]+"x";LS.set("tabiji.speed",S.speedIdx);updateScrub()};
+function setTheater(on){document.body.classList.toggle("theater",on);fitStage()}
+$("#btnTheater").onclick=()=>setTheater(!document.body.classList.contains("theater"));
+$("#theaterClose").onclick=()=>setTheater(false);
+$("#btnRec").onclick=()=>{if(!S.recording)startRec()};
+addEventListener("resize",fitStage); addEventListener("load",fitStage); addEventListener("orientationchange",()=>setTimeout(fitStage,200));
+addEventListener("keydown",e=>{if(e.key===" "&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();$("#btnPlay").click()}else if(e.key==="Escape"&&document.body.classList.contains("theater"))setTheater(false)});
+
+/* ============ BOOT ============ */
+(function boot(){
+  S.trips=(LS.get("tabiji.trips",[])||[]).filter(t=>t&&Array.isArray(t.stops));
+  S.speedIdx=clamp(LS.get("tabiji.speed",1)|0,0,SPEEDS.length-1); $("#btnSpeed").textContent=SPEEDS[S.speedIdx]+"x";
+  let first=false;
+  if(!S.trips.length){const t=makeTrip(SAMPLES[0]);t._starter=true;S.trips=[t];first=true;LS.set("tabiji.trips",S.trips)}
+  S.curId=LS.get("tabiji.cur",null); if(!S.trips.find(t=>t.id===S.curId)) S.curId=S.trips[0].id;
+  renderAll(); rebuild();
+  const fontsReady=document.fonts&&document.fonts.load?Promise.all([document.fonts.load(`800 20px "M PLUS Rounded 1c"`),document.fonts.load(`700 20px "M PLUS Rounded 1c"`)]).catch(()=>{}):Promise.resolve();
+  fontsReady.then(()=>{if(!S.playing)frame(); if(first) setTimeout(()=>play(true),400)});
+  initCloud();
+})();
+</script>
+</body>
+</html>
