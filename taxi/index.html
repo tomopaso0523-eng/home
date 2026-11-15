@@ -55,7 +55,7 @@
     -webkit-font-smoothing:antialiased;
   }
   button,input{font:inherit;color:inherit}
-  button{cursor:pointer}
+  button{cursor:pointer;touch-action:manipulation}
   :focus-visible{outline:3px solid rgba(35,121,237,.55);outline-offset:2px}
   .tnum{font-variant-numeric:tabular-nums}
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
@@ -73,9 +73,12 @@
     background:rgba(245,249,255,.68);
     -webkit-backdrop-filter:blur(22px) saturate(180%);
     backdrop-filter:blur(22px) saturate(180%);
-    border-bottom:1px solid var(--line);
+    border-bottom:1px solid transparent;transition:border-color .25s;
     display:flex;align-items:center;gap:12px;
   }
+  .nav::after{content:"";position:absolute;left:0;right:0;top:100%;height:14px;pointer-events:none;
+    background:linear-gradient(rgba(25,59,96,.07),rgba(25,59,96,0));opacity:0;transition:opacity .25s}
+  .nav.scrolled::after{opacity:1}
   .app-icon{
     width:40px;height:40px;border-radius:12px;flex:none;
     display:grid;place-items:center;color:#fff;
@@ -100,6 +103,7 @@
 
   /* ---------- segmented ---------- */
   .seg{
+    position:relative;isolation:isolate;
     display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;
     border-radius:999px;background:var(--glass);
     -webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);
@@ -107,13 +111,17 @@
   }
   .seg button{
     border:0;background:transparent;border-radius:999px;min-height:42px;
-    font-size:15px;font-weight:700;color:var(--sub);
-    transition:background .2s,color .2s,transform .12s;
+    font-size:15px;font-weight:700;color:var(--sub);position:relative;z-index:1;
+    transition:color .25s,transform .12s;
   }
-  .seg button[aria-pressed="true"]{
-    color:#fff;background:linear-gradient(180deg,var(--blue-light),var(--blue));
+  .seg button[aria-pressed="true"]{color:#fff}
+  .seg-ind{
+    position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc((100% - 16px) / 3);
+    border-radius:999px;pointer-events:none;
+    background:linear-gradient(180deg,var(--blue-light),var(--blue));
     box-shadow:0 4px 12px rgba(35,121,237,.32), inset 0 1px 0 rgba(255,255,255,.35);
   }
+  .seg.ready .seg-ind{transition:transform .42s cubic-bezier(.32,.72,0,1)}
   .seg button[aria-pressed="true"]::before{content:"✓ ";font-size:12px}
   .seg button:active{transform:scale(.97)}
 
@@ -200,6 +208,8 @@
   .row{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;position:relative}
   .row + .row::before{content:"";position:absolute;top:0;left:62px;right:0;height:1px;background:var(--line)}
   .row.pending{opacity:.6}
+  .row.enter{animation:rowIn .38s cubic-bezier(.32,.72,0,1)}
+  @keyframes rowIn{from{opacity:0;transform:translateY(-8px) scale(.98)}}
   .row .ic{
     width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;color:var(--blue);
     background:linear-gradient(180deg,#F2F8FF,#DDEBFF);box-shadow:inset 0 0 0 1px rgba(35,121,237,.1);
@@ -226,21 +236,24 @@
   /* ---------- dialog ---------- */
   .overlay{
     position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;
-    background:rgba(20,45,80,.26);
-    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+    --dim:1;
+    background:rgba(20,45,80,calc(.26 * var(--dim)));
+    -webkit-backdrop-filter:blur(calc(4px * var(--dim)));backdrop-filter:blur(calc(4px * var(--dim)));
     padding:0 calc(8px + var(--safe-r)) calc(8px + var(--safe-b)) calc(8px + var(--safe-l));
   }
-  .overlay.open{display:flex;animation:fade .18s ease}
-  @keyframes fade{from{opacity:0}}
+  .overlay.open{display:flex}
   .sheet{
     width:100%;max-width:520px;border-radius:28px;padding:20px 18px 18px;
     background:rgba(255,255,255,.9);
     -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
     border:1px solid rgba(255,255,255,.9);
     box-shadow:0 24px 60px rgba(20,60,120,.25), var(--hi);
-    animation:up .24s cubic-bezier(.2,.9,.3,1.1);
-    max-height:calc(100vh - 24px);overflow:auto;
+    max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;
+    position:relative;
   }
+  .grab{display:block;width:100%;height:22px;margin:-14px 0 2px;touch-action:none;cursor:grab}
+  .grab::before{content:"";display:block;width:38px;height:5px;border-radius:3px;margin:8px auto 0;background:rgba(25,59,96,.18)}
+  .sheet-head{touch-action:none}
   @keyframes up{from{transform:translateY(24px);opacity:.6}}
   @media (min-width:700px){ .overlay{align-items:center} }
   .sheet .kicker{font-size:12px;font-weight:700;color:var(--blue);letter-spacing:.04em}
@@ -283,6 +296,8 @@
     box-shadow:0 10px 30px rgba(20,50,90,.3);animation:up .22s ease;
   }
   .toast.error{background:rgba(201,65,74,.95)}
+  .toast.leave{animation:toastOut .22s ease forwards}
+  @keyframes toastOut{to{opacity:0;transform:scale(.96);filter:blur(4px)}}
   .toast .msg{flex:1}
   .toast button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:7px 12px;font-weight:800;font-size:13px}
 
@@ -292,6 +307,16 @@
   }
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+  @media (prefers-reduced-transparency:reduce){
+    .nav{background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none}
+    .seg,.list,.act,.sheet,.toast{-webkit-backdrop-filter:none;backdrop-filter:none}
+    .seg,.list{background:#fff}
+    .sheet{background:#fff}
+  }
+  @media (prefers-contrast:more){
+    .seg,.list,.act:not(.other),.sheet{background:#fff;border-color:rgba(25,59,96,.35)}
+    .act .lbl,.row .name{color:#0B2340}
   }
 </style>
 </head>
@@ -344,8 +369,9 @@
 
 <div class="overlay" id="overlay" aria-hidden="true">
   <form class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="dlgTitle" novalidate>
+    <div class="sheet-head"><span class="grab" aria-hidden="true"></span>
     <div class="kicker">新しい記録</div>
-    <h3 id="dlgTitle">【その他】を記録</h3>
+    <h3 id="dlgTitle">【その他】を記録</h3></div>
     <label class="field"><span>項目名</span>
       <input id="inLabel" type="text" maxlength="40" value="その他" autocomplete="off" enterkeyhint="next">
     </label>
@@ -364,6 +390,7 @@
 </div>
 
 <div class="toasts" id="toasts" aria-live="assertive"></div>
+<label id="hapticLbl" aria-hidden="true" style="position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none"><input type="checkbox" switch tabindex="-1"></label>
 
 <script>
 (() => {
@@ -394,7 +421,28 @@
   const yen = (n) => "¥" + Number(n).toLocaleString("ja-JP");
   const pad = (n) => String(n).padStart(2, "0");
   const fmtWhen = (ms) => { const d = new Date(ms); return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-  const buzz = () => { try { if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(8); } catch (_) {} };
+  const reduceMotion = () => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (_) { return false; } };
+  // 記録の瞬間に振動（Android: vibrate／iPhone: Safariのスイッチの触覚）
+  const buzz = () => {
+    try { if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(8); } catch (_) {}
+    try { const l = document.getElementById("hapticLbl"); if (l && !("vibrate" in navigator)) l.click(); } catch (_) {}
+  };
+  // Apple流のばね（damping=1で行き過ぎなし、0.8で少し弾む）。いつでも止めて、今の位置から再開できる
+  function spring({ from, to, velocity = 0, response = 0.35, damping = 1, onUpdate, onDone }) {
+    const k = Math.pow(2 * Math.PI / response, 2), c = 4 * Math.PI * damping / response;
+    let x = from, v = velocity, last = performance.now(), raf = 0, stopped = false;
+    const step = (now) => {
+      if (stopped) return;
+      let dt = Math.min(0.064, (now - last) / 1000); last = now;
+      while (dt > 0) { const h = Math.min(dt, 1 / 240); v += (-k * (x - to) - c * v) * h; x += v * h; dt -= h; }
+      if (Math.abs(x - to) < 0.4 && Math.abs(v) < 4) { onUpdate(to, 0); if (onDone) onDone(); return; }
+      onUpdate(x, v); raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => { stopped = true; cancelAnimationFrame(raf); };
+  }
+  const rubberband = (over, dim, c = 0.55) => (over * dim * c) / (dim + c * Math.abs(over));
+  const project = (v, d = 0.99) => (v / 1000) * d / (1 - d);
 
   function months() {
     const now = new Date(); const out = [];
@@ -425,11 +473,16 @@
     const t = document.createElement("span"); t.className = "msg"; t.textContent = msg; el.appendChild(t);
     if (opts.action) {
       const b = document.createElement("button"); b.type = "button"; b.textContent = opts.action.label;
-      b.addEventListener("click", () => { opts.action.run(); el.remove(); }); el.appendChild(b);
+      b.addEventListener("click", () => { opts.action.run(); leave(el); }); el.appendChild(b);
     }
     $("toasts").appendChild(el);
     while ($("toasts").children.length > 3) $("toasts").firstChild.remove();
-    setTimeout(() => el.remove(), opts.ms || (opts.action ? 5000 : 2600));
+    setTimeout(() => leave(el), opts.ms || (opts.action ? 5000 : 2600));
+  }
+  function leave(el) {
+    if (!el.isConnected || el.classList.contains("leave")) return;
+    if (reduceMotion()) { el.remove(); return; }
+    el.classList.add("leave"); setTimeout(() => el.remove(), 230);
   }
 
   /* ===== sync indicator ===== */
@@ -448,8 +501,15 @@
   }
 
   function renderSeg() {
-    const seg = $("seg"); seg.textContent = "";
-    for (const mo of months()) {
+    const seg = $("seg");
+    let ind = seg.querySelector(".seg-ind");
+    if (!ind) { ind = document.createElement("span"); ind.className = "seg-ind"; ind.setAttribute("aria-hidden", "true"); seg.appendChild(ind); }
+    for (const b of [...seg.querySelectorAll("button")]) b.remove();
+    const list = months();
+    const idx = Math.max(0, list.findIndex(mo => state.sel && mo.y === state.sel.y && mo.m === state.sel.m));
+    ind.style.transform = `translateX(calc(${idx} * (100% + 4px)))`;
+    if (!seg.classList.contains("ready")) requestAnimationFrame(() => requestAnimationFrame(() => seg.classList.add("ready")));
+    for (const mo of list) {
       const b = document.createElement("button"); b.type = "button";
       const on = state.sel && mo.y === state.sel.y && mo.m === state.sel.m;
       b.setAttribute("aria-pressed", on ? "true" : "false");
@@ -459,6 +519,30 @@
       seg.appendChild(b);
     }
   }
+
+  // 合計の数字：前の値から新しい値へ、0.45秒でなめらかに
+  let shownTotal = 0, totalRaf = 0, totalInit = false;
+  function drawTotal(n) {
+    const amt = $("totalAmount"); amt.textContent = "";
+    const yS = document.createElement("span"); yS.className = "yen"; yS.textContent = "¥";
+    amt.append(yS, document.createTextNode(Math.round(n).toLocaleString("ja-JP")));
+  }
+  function setTotal(target) {
+    cancelAnimationFrame(totalRaf);
+    if (!totalInit || !state.loaded || reduceMotion() || shownTotal === target) {
+      shownTotal = target; drawTotal(target); if (state.loaded) totalInit = true; return;
+    }
+    const from = shownTotal, t0 = performance.now(), dur = 450;
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      shownTotal = from + (target - from) * e; drawTotal(shownTotal);
+      if (p < 1) totalRaf = requestAnimationFrame(step); else shownTotal = target;
+    };
+    totalRaf = requestAnimationFrame(step);
+  }
+
+  const seenIds = new Set(); let seenReady = false;
+  const enterAt = new Map();
 
   function render() {
     const ms = months();
@@ -472,9 +556,7 @@
     const ym = `${state.sel.y}年${state.sel.m}月`;
 
     $("totalLabel").textContent = `${ym}の合計：`;
-    const amt = $("totalAmount"); amt.textContent = "";
-    const yS = document.createElement("span"); yS.className = "yen"; yS.textContent = "¥";
-    amt.append(yS, document.createTextNode(total.toLocaleString("ja-JP")));
+    setTotal(total);
     $("totalCard").setAttribute("aria-label", `${ym}の合計：${yen(total)}`);
     $("totalMeta").textContent = state.loaded ? `${rows.length}件` : "読み込み中…";
 
@@ -485,13 +567,25 @@
       list.appendChild(li); return;
     }
     if (!rows.length) {
+      for (const r of visibleRides()) seenIds.add(r.id); if (state.loaded) seenReady = true;
       const li = document.createElement("li"); li.className = "empty";
       const big = document.createElement("div"); big.className = "big"; big.appendChild(svg(ICON_CAR, 30, 1.8));
       const t = document.createElement("div"); t.textContent = state.loaded ? `${ym}の記録はまだありません` : "読み込み中…";
       li.append(big, t); list.appendChild(li); return;
     }
+    const now = performance.now();
+    if (seenReady) for (const r of rows) if (!seenIds.has(r.id)) enterAt.set(r.id, now);
+    for (const r of visibleRides()) seenIds.add(r.id);
+    if (state.loaded) seenReady = true;
     for (const r of rows) {
       const li = document.createElement("li"); li.className = "row" + (r.pending ? " pending" : "");
+      li.dataset.id = r.id;
+      // 描き直しても入場アニメが途切れないよう、経過時間ぶん進めた状態から続ける
+      const t0 = enterAt.get(r.id);
+      if (t0 !== undefined) {
+        const el = now - t0;
+        if (el < 380) { li.classList.add("enter"); li.style.animationDelay = `-${Math.round(el)}ms`; } else enterAt.delete(r.id);
+      }
       const ic = document.createElement("div"); ic.className = "ic"; ic.appendChild(svg(ICON_CAR, 18));
       const info = document.createElement("div"); info.className = "info";
       const nm = document.createElement("div"); nm.className = "name"; nm.textContent = r.label || "その他"; nm.title = r.label || "";
@@ -566,6 +660,13 @@
 
   async function removeRide(r) {
     if (!db) return;
+    buzz();
+    const li = document.querySelector(`.row[data-id="${CSS.escape(r.id)}"]`);
+    if (li && !reduceMotion() && li.animate) {
+      li.style.pointerEvents = "none";
+      try { await li.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(28px)" }],
+        { duration: 180, easing: "cubic-bezier(.32,.72,0,1)", fill: "forwards" }).finished; } catch (_) {}
+    }
     hidden.set(r.id, r); render();
     try {
       await db.collection("rides").doc(r.id).delete();
@@ -588,9 +689,14 @@
   }
 
   /* ===== fixed buttons ===== */
+  function pulse(btn) {
+    if (!btn || reduceMotion() || !btn.animate) return;
+    btn.animate([{ transform: "scale(.975)" }, { transform: "scale(1.012)" }, { transform: "scale(1)" }],
+      { duration: 360, easing: "cubic-bezier(.32,.72,0,1)" });
+  }
   function oneTap(key) {
     const f = FIXED[key];
-    buzz();
+    buzz(); pulse($(key === "senri" ? "btnSenri" : "btnShin"));
     addRide(f.label, f.amount).then(ok => { if (ok) toast(`${f.label} ${yen(f.amount)} を記録しました`); });
   }
   $("btnSenri").addEventListener("click", () => oneTap("senri"));
@@ -610,19 +716,80 @@
   function clearErr() { amtErr.textContent = ""; inAmount.removeAttribute("aria-invalid"); }
   inAmount.addEventListener("input", () => { syncChips(); clearErr(); });
 
+  const sheet = $("sheet");
+  let sheetY = 0, sheetStop = null, sheetOpen = false, justDragged = false;
+  const sheetH = () => sheet.getBoundingClientRect().height + 32;
+  function setSheetY(y) {
+    sheetY = y;
+    sheet.style.transform = `translate3d(0,${y}px,0)`;
+    overlay.style.setProperty("--dim", String(Math.max(0, Math.min(1, 1 - y / sheetH()))));
+  }
+  function hideOverlay() {
+    overlay.classList.remove("open"); overlay.setAttribute("aria-hidden", "true"); document.body.classList.remove("dlg-open");
+    sheet.style.transform = ""; overlay.style.removeProperty("--dim"); overlay.style.opacity = "";
+  }
   function openDlg() {
     lastFocus = document.activeElement;
     inLabel.value = "その他"; inAmount.value = ""; clearErr(); syncChips();
+    if (sheetStop) { sheetStop(); sheetStop = null; }
     overlay.classList.add("open"); overlay.setAttribute("aria-hidden", "false"); document.body.classList.add("dlg-open");
+    sheetOpen = true;
+    if (reduceMotion()) {
+      setSheetY(0);
+      if (overlay.animate) overlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 });
+    } else {
+      setSheetY(sheetH());
+      sheetStop = spring({ from: sheetY, to: 0, response: 0.38, damping: 1, onUpdate: setSheetY });
+    }
     setTimeout(() => inAmount.focus(), 60);
   }
-  function closeDlg() {
-    overlay.classList.remove("open"); overlay.setAttribute("aria-hidden", "true"); document.body.classList.remove("dlg-open");
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  function closeDlg(velocity = 0) {
+    if (!overlay.classList.contains("open")) return;
+    sheetOpen = false;
+    if (sheetStop) { sheetStop(); sheetStop = null; }
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    const done = () => { sheetStop = null; hideOverlay(); if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true }); };
+    if (reduceMotion()) {
+      if (overlay.animate) overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160 }).finished.then(done, done); else done();
+      return;
+    }
+    sheetStop = spring({ from: sheetY, to: sheetH(), velocity: typeof velocity === "number" ? velocity : 0,
+      response: 0.32, damping: 1, onUpdate: setSheetY, onDone: done });
   }
+  // 上の取っ手部分を指で下に引くと閉じる。動いている途中でも掴み直せる
+  (() => {
+    const head = sheet.querySelector(".sheet-head");
+    let startY = 0, startSheet = 0, hist = [], dragging = false, pid = null;
+    head.addEventListener("pointerdown", (e) => {
+      if (!overlay.classList.contains("open")) return;
+      if (sheetStop) { sheetStop(); sheetStop = null; }   // 動いている途中なら、今の位置で止めて掴む
+      dragging = true; pid = e.pointerId; head.setPointerCapture(pid);
+      startY = e.clientY; startSheet = sheetY; hist = [{ y: e.clientY, t: e.timeStamp }];
+    });
+    head.addEventListener("pointermove", (e) => {
+      if (!dragging || e.pointerId !== pid) return;
+      const raw = startSheet + (e.clientY - startY);
+      setSheetY(raw >= 0 ? raw : -rubberband(-raw, sheetH()));   // 上へはゴムのように抵抗
+      hist.push({ y: e.clientY, t: e.timeStamp }); while (hist.length > 2 && e.timeStamp - hist[0].t > 100) hist.shift();
+    });
+    const end = (e) => {
+      if (!dragging || e.pointerId !== pid) return;
+      dragging = false; justDragged = Math.abs(sheetY - startSheet) > 4; setTimeout(() => { justDragged = false; }, 50);
+      const a = hist[0], b = hist[hist.length - 1];
+      const v = b && a && b.t > a.t ? ((b.y - a.y) / (b.t - a.t)) * 1000 : 0;   // px/秒
+      const projected = sheetY + project(v);
+      if (projected > sheetH() * 0.45) { buzz(); closeDlg(v); }
+      else {
+        sheetOpen = true;
+        sheetStop = spring({ from: sheetY, to: 0, velocity: v, response: 0.3, damping: Math.abs(v) > 300 ? 0.8 : 1, onUpdate: setSheetY });
+      }
+    };
+    head.addEventListener("pointerup", end);
+    head.addEventListener("pointercancel", end);
+  })();
   $("btnOther").addEventListener("click", openDlg);
-  $("btnCancel").addEventListener("click", closeDlg);
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeDlg(); });
+  $("btnCancel").addEventListener("click", () => closeDlg());
+  overlay.addEventListener("click", (e) => { if (e.target === overlay && !justDragged) closeDlg(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && overlay.classList.contains("open")) closeDlg(); });
   $("sheet").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -637,7 +804,7 @@
       return;
     }
     const label = inLabel.value.trim() || "その他";
-    closeDlg(); buzz();
+    closeDlg(); buzz(); pulse($("btnOther"));
     const ok = await addRide(label, n);
     if (ok) toast(`${label} ${yen(n)} を記録しました`);
   });
@@ -649,6 +816,10 @@
   }
 
   /* ===== 起動 ===== */
+  document.addEventListener("touchstart", () => {}, { passive: true });
+  const navEl = document.querySelector(".nav");
+  const onScroll = () => navEl.classList.toggle("scrolled", window.scrollY > 2);
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
   render();
 
   /* ===== 共有データベース（Supabase） =====
