@@ -11,3 +11,4 @@ https://minervalab.jp のソースです。
 - [旅の足跡](https://minervalab.jp/tabinoashi/) — 世界249の国・地域と日本47都道府県の訪問状況を地図で記録する旅行記録アプリ（データは端末内、オフライン対応）
 - [きょうあした予定帳](https://minervalab.jp/schedule/) — 今日・明日だけの予定をサッと書いて組み立てるタイムライン（データは端末内）
 - [Tabiji](https://minervalab.jp/tabiji/) — 旅の経路を3D地球儀の上で乗り物が走るアニメにして動画保存できる旅路アニメマップ（データは端末内）
+- [AIニュース](https://minervalab.jp/news/) — Claude・ChatGPT・Gemini・Manusの公式発表を毎朝まとめる日刊ニュース（用語はタップで解説、毎朝9時に自動更新）

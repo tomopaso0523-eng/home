@@ -1,0 +1,129 @@
+{
+ "date": "2026-11-15",
+ "period": "11/14早朝〜11/15朝（日本時間）・公式発表のみ",
+ "highlights": [
+  {
+   "svc": "gem",
+   "text": "Googleの有料プラン（AI Pro・Ultra）会員が、AI Studioで毎月「Google Cloudクレジット」を受け取れるように。"
+  },
+  {
+   "svc": "gem",
+   "text": "GoogleのAIが何人分も協力して難問を解く「/teamwork」が外部に公開。大学の研究者1万人に6か月無料。"
+  },
+  {
+   "svc": "",
+   "text": "週末のため、Claude・ChatGPT・Manusは新しい公式発表なし。"
+  }
+ ],
+ "services": {
+  "claude": {
+   "head": "新しい公式発表なし",
+   "items": [],
+   "none": "新しい公式発表なし（リリースノートの最新は11/12の「Claude Meetings」で、前回掲載済み）。"
+  },
+  "gpt": {
+   "head": "新しい公式発表なし",
+   "items": [],
+   "none": "新しい公式発表は確認できず（openai.com とChatGPTのリリースノートは今回開けなかったため、開発者向け変更履歴などで確認。最新は11/13の「ChatGPT Wallet」で前回掲載済み）。"
+  },
+  "gem": {
+   "head": "有料会員に毎月クレジット",
+   "items": [
+    {
+     "title": "AI Pro・Ultra会員に毎月クレジット",
+     "body": "Googleの有料プラン会員は、[[aistudio|AI Studio]]で毎月[[credit|クレジット]]を受け取れるように。Geminiの[[api|API]]を使った自作アプリづくりに使え、各回12か月有効。使うには5ドルの[[prepay|前払い]]が必要です（11/14 5:30ごろ公開）。",
+     "url": "https://blog.google/innovation-and-ai/technology/developers-tools/google-cloud-credits-gdp-ai-studio/"
+    },
+    {
+     "title": "Antigravityの「/teamwork」を外部公開",
+     "body": "Googleの開発ツール[[antigravity|Antigravity]]で、役割の違う複数の[[agent|エージェント]]が分担する[[multi|マルチエージェント]]機能を誰でも使えるように。答えを別のAIが[[verify|検証]]する仕組みで、数学の未解決問題も解いたそうです。大学の研究者1万人には6か月無料（11/14 5:47ごろ公開）。",
+     "url": "https://research.google/blog/advancing-science-engineering-with-antigravitys-teamwork-feature"
+    }
+   ],
+   "none": ""
+  },
+  "manus": {
+   "head": "新しい公式発表なし",
+   "items": [],
+   "none": "新しい公式発表なし（ブログの最新は11/13のゲーム制作ハウツー記事で、前回掲載済み）。"
+  }
+ },
+ "glossary": [
+  {
+   "group": "🍳 料理教室でたとえると（Gemini・クレジット）",
+   "keys": [
+    "aistudio",
+    "api",
+    "credit",
+    "prepay"
+   ]
+  },
+  {
+   "group": "🎪 文化祭の実行委員会でたとえると（Gemini・/teamwork）",
+   "keys": [
+    "antigravity",
+    "agent",
+    "multi",
+    "verify"
+   ]
+  }
+ ],
+ "terms": {
+  "aistudio": {
+   "name": "AI Studio（エーアイ スタジオ）",
+   "mean": "GoogleのAI「Gemini」を使って、自分のアプリやツールを試作・公開できるGoogle公式のWeb上の作業場。",
+   "analogy": "料理教室のキッチンを想像してください。ふだんのGeminiアプリが「レストランで出てきた料理を食べる場所」だとすると、AI Studioは「自分で材料を選んで、オリジナル料理を試作できる調理室」です。作った料理（アプリ）は、そのままお店（インターネット）に出すこともできます。",
+   "context": "今回のクレジットは、このAI Studioの画面から受け取ります。左側のメニューに「まだ受け取っていないクレジット」と残高が表示され、そこから受け取り手続きができます。"
+  },
+  "api": {
+   "name": "API（エーピーアイ）",
+   "mean": "アプリやサービスが、外からAIの機能を呼び出すための「窓口」のこと。",
+   "analogy": "さっきの料理教室でいうと「食材の注文窓口」です。自分の作ったアプリ（料理）がGeminiの力を必要とするたびに、この窓口に「Geminiを1回分ください」と注文が飛びます。注文した分だけ、あとで料金がかかります。",
+   "context": "今回のクレジットは、主にこのGemini APIの料金の支払いに使えます。自分で作ったチャットボットやアプリがGeminiを呼び出す分を、クレジットでまかなえるイメージです。"
+  },
+  "credit": {
+   "name": "クレジット",
+   "mean": "サービスの利用料の支払いに使える「ポイント」や「割引券」のようなもの。クレジットカードとは別物です。",
+   "analogy": "料理教室に通っている人に、毎月「食材チケット」が配られるイメージです。さっきの注文窓口（API）で食材を頼むとき、現金の代わりにこのチケットで払えます。教室のコースが上（Ultra）ほど、毎月もらえるチケットの枚数が多くなります。",
+   "context": "Google AI Pro・Ultraの会員は、毎月Google Cloudのクレジットを受け取れます（例として40ドル分の表示）。1回分ごとに12か月有効で、期限が近いものから先に使われます。家族プランで共有しているメンバーは使えず、契約した本人だけが対象です。"
+  },
+  "prepay": {
+   "name": "前払い（プリペイド）",
+   "mean": "サービスを使う前に、先にお金を入れておく支払い方法。",
+   "analogy": "さっきの食材チケットを使うには、まず教室の「自分用の財布」に500円ほど入れておく決まりがある、というイメージです。Suicaにチャージしてから改札を通るのに近い仕組みで、チャージ残高がないとチケットも使えません。",
+   "context": "Gemini APIをGoogle Cloudの支払いで使う場合、最低5ドルを前払いして残高にしておくことが、クレジットを使う条件になっています。完全に0円で始められるわけではない点に注意です。"
+  },
+  "antigravity": {
+   "name": "Antigravity（アンチグラビティ）",
+   "mean": "Googleが作った、AIと一緒にプログラムを書いたり大きな作業を進めたりするための開発ツール。",
+   "analogy": "文化祭の「実行委員会の本部の部屋」のようなものです。ここに集まった係たち（AI）が、資料や道具を使いながら出し物の準備（プログラムづくりや研究）を進めます。人間はその部屋で全体を見守り、指示を出します。",
+   "context": "今回、このAntigravityで「/teamwork」という新しい使い方が外部の人にも開放されました。もともとGoogleの研究者が使っていた本気の作業モードです。"
+  },
+  "agent": {
+   "name": "エージェント",
+   "mean": "ゴールを伝えると、自分で手順を考えて、道具を使いながら最後まで作業を進めてくれるAIのこと。",
+   "analogy": "さっきの実行委員会でいえば「頼れる係の1人」です。「看板を作っておいて」と頼めば、材料を調べ、デザインを考え、色を塗るところまで、いちいち指示しなくても自分で段取りを組んで進めてくれます。",
+   "context": "/teamworkでは、こうしたエージェントが1人ではなく、何人も同時に働きます。それぞれの係は自分の担当に必要な資料と道具だけを渡されるので、余計な情報に気を取られず作業できます。"
+  },
+  "multi": {
+   "name": "マルチエージェント",
+   "mean": "役割の違う複数のエージェント（AIの係）が、分担・協力して1つの大きな仕事を進める仕組み。",
+   "analogy": "さっきの係たちが、実行委員長の指示で「看板係」「会計係」「チェック係」と分かれて同時に動く状態です。1人で全部やると何日もかかり、途中で細かいことを忘れがちですが、分担すれば速く、しかも新しい係に引き継ぎながら長い作業も続けられます。",
+   "context": "/teamworkでは、まとめ役のAIが仕事を割り振り、何人ものAIが並行していろいろな解き方を試します。Googleはこの方法で、2013年から未解決だった数学の予想の証明や、プログラムの高速化などに成功したと発表しています。"
+  },
+  "verify": {
+   "name": "検証",
+   "mean": "出てきた答えが本当に正しいかを、別の方法で確かめること。",
+   "analogy": "実行委員会でいえば、会計係がつけた帳簿を、作った本人ではない「チェック係」が電卓でもう一度計算し直すイメージです。作った本人の思い込みが入らないので、ミスが見つかりやすくなります。",
+   "context": "/teamworkでは、AIの出した答えを、数学の証明が正しいか機械的に判定するソフトや、プログラムのテストで確認します。さらに、作業の経緯を知らない別のAIが「監査役」としてチェックするので、AIのでっち上げや見落としを減らせます。"
+  }
+ },
+ "sources": [
+  "https://blog.google/innovation-and-ai/technology/developers-tools/google-cloud-credits-gdp-ai-studio/",
+  "https://research.google/blog/advancing-science-engineering-with-antigravitys-teamwork-feature",
+  "https://support.claude.com/en/articles/12138966-release-notes",
+  "https://www.anthropic.com/news",
+  "https://developers.openai.com/api/docs/changelog",
+  "https://manus.im/blog"
+ ]
+}

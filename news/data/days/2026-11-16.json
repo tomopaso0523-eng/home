@@ -1,0 +1,74 @@
+{
+ "date": "2026-11-16",
+ "period": "11/15朝〜11/16朝（日本時間）・公式発表のみ",
+ "highlights": [
+  {
+   "svc": "",
+   "text": "週末（米国の土曜〜日曜）にあたり、Claude・ChatGPT・Gemini・Manusとも新しい公式発表はありませんでした。"
+  },
+  {
+   "svc": "",
+   "text": "各社のリリースノートも、最新の更新は11/13以前のままです。"
+  }
+ ],
+ "services": {
+  "claude": {
+   "head": "新しい公式発表なし",
+   "items": [],
+   "none": "新しい公式発表なし（リリースノートの最新は11/12）。"
+  },
+  "gpt": {
+   "head": "新しい公式発表なし",
+   "items": [],
+   "none": "新しい公式発表なし（リリースノートの最新は11/13）。"
+  },
+  "gem": {
+   "head": "新しい公式発表なし",
+   "items": [],
+   "none": "新しい公式発表なし（Google公式の最新は11/13）。"
+  },
+  "manus": {
+   "head": "新しい公式発表なし",
+   "items": [],
+   "none": "新しい公式発表なし（ブログの最新は11/13のゲーム制作ハウツー記事）。"
+  },
+  "other": {
+   "head": "",
+   "items": [],
+   "none": "主要AI企業による大きな[[ichiji|公式発表]]は見つかりませんでした。"
+  }
+ },
+ "glossary": [
+  {
+   "group": "📰 学校のお知らせでたとえると（今日のまとめ方）",
+   "keys": [
+    "relnote",
+    "ichiji"
+   ]
+  }
+ ],
+ "terms": {
+  "relnote": {
+   "name": "リリースノート",
+   "mean": "アプリやサービスが「いつ・何を変えたか」を日付つきで書き残した、更新のお知らせ一覧のこと。",
+   "analogy": "学校の掲示板に貼られる「お知らせプリント」の束をイメージしてください。「11月12日：図書室の開館時間を延長」「11月5日：食堂に新メニュー」のように、変わったことが新しい順に並んでいます。掲示板を見れば、うわさを聞かなくても何が変わったか正確にわかります。",
+   "context": "今朝はClaude・ChatGPT・Geminiの掲示板（リリースノート）を確認しましたが、新しいプリントは11/13以前のものだけで、この24時間に貼られたものはありませんでした。"
+  },
+  "ichiji": {
+   "name": "公式発表（一次情報）",
+   "mean": "その会社自身が出した発表のこと。ほかの人が又聞きで伝えた情報（二次情報）と区別して「一次情報」と呼びます。",
+   "analogy": "さっきの学校の掲示板でいうと、先生が自分で貼ったプリントが一次情報です。友達から「来週テストなくなるらしいよ」と聞いた話は二次情報で、聞き間違いや勘違いが混ざることがあります。だから大事なことは、掲示板（本人の発表）で確かめるのが安心です。",
+   "context": "このまとめは、各社の公式ブログやリリースノートで確かめられたものだけを載せています。今日はニュースサイトの話題はあっても、公式に確認できる新しい発表はなかったので「0件」としています。"
+  }
+ },
+ "sources": [
+  "https://support.claude.com/en/articles/12138966-release-notes",
+  "https://platform.claude.com/docs/en/release-notes/overview",
+  "https://www.anthropic.com/news",
+  "https://help.openai.com/en/articles/6825453-chatgpt-release-notes",
+  "https://developers.openai.com/api/docs/changelog",
+  "https://gemini.google/release-notes/",
+  "https://aistudio.google.com/docs/changelog",
+  "https://manus.im/blog"
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "days": [
+  {
+   "date": "2026-11-16",
+   "highlight": "週末（米国の土曜〜日曜）にあたり、Claude・ChatGPT・Gemini・Manusとも新しい公式発表はありませんでした。",
+   "total": 0
+  },
+  {
+   "date": "2026-11-15",
+   "highlight": "Googleの有料プラン（AI Pro・Ultra）会員が、AI Studioで毎月「Google Cloudクレジット」を受け取れるように。",
+   "total": 2
+  },
+  {
+   "date": "2026-11-14",
+   "highlight": "Googleが速くて安い新AI「Gemini 4 Hydrogen」を公開。Geminiアプリや検索で使えます。",
+   "total": 5
+  },
+  {
+   "date": "2026-11-12",
+   "highlight": "Googleが「選択肢から選ぶだけ」に特化した、速くて安いAIの窓口「Gemini Decisions API」を公開。",
+   "total": 5
+  },
+  {
+   "date": "2026-11-10",
+   "highlight": "AnthropicがClaudeの最上位モデル「Fable 5.2」を公開。前より最大30%速く、有料プランは今週多めに使えます。",
+   "total": 4
+  },
+  {
+   "date": "2026-11-09",
+   "highlight": "週末（米国の土曜〜日曜）にあたり、Claude・ChatGPT・Gemini・Manusとも新しい公式発表はゼロでした。",
+   "total": 0
+  },
+  {
+   "date": "2026-11-08",
+   "highlight": "週末をはさみ、主要4サービスの大きな新発表はありませんでした。動きはClaudeの会社向けの小さな新機能1件だけです。",
+   "total": 1
+  },
+  {
+   "date": "2026-11-07",
+   "highlight": "Googleが動画をつくるAI「Gemini Omni 1.2 Flash」を公開。最大15秒・料金は約3割安く。",
+   "total": 5
+  }
+ ]
+}
