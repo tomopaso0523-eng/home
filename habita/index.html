@@ -135,14 +135,13 @@
   var KEY='habita-sleep-v1';
   var CORE=[
     {k:'light',t:'朝起きて直ぐに太陽を浴びた'},
-    {k:'shelf',t:'寝る1時間前には棚の中にスマホを置いた'}
-  ];
-  var EXTRA=[
+    {k:'shelf',t:'寝る1時間前には棚の中にスマホを置いた'},
     {k:'nobed',t:'ベッドでスマホを触らなかった'},
     {k:'read',t:'寝る前の1時間、本を読んだ'},
     {k:'bath',t:'お風呂にスマホを持っていかなかった'},
     {k:'plan',t:'22:30までに明日の予定を立て、歯磨き中にイメージした'}
   ];
+  var EXTRA=[];
   var WD=['日','月','火','水','木','金','土'];
   function pad(n){return String(n).padStart(2,'0')}
   function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
@@ -181,7 +180,7 @@
       if(br!==null){var diff=br;pills+='<span class="hs-pill '+(Math.abs(diff)<=30?'ok':'ng')+'">就寝 '+(diff===0?'0時ぴったり':(diff>0?'0時の'+diff+'分後':'0時の'+(-diff)+'分前'))+'</span>'}
       if(wm!==null){var wd=wm-480;pills+='<span class="hs-pill '+(Math.abs(wd)<=30?'ok':'ng')+'">起床 '+(wd===0?'8時ぴったり':(wd>0?'8時の'+wd+'分後':'8時の'+(-wd)+'分前'))+'</span>'}
       if(!pills)pills='<span>寝た時刻と起きた時刻を入れてください</span>';
-      function item(r,core){var on=!!day.checks[r.k];return '<button type="button" class="hs-item'+(on?' on':'')+'" data-k="'+r.k+'" aria-pressed="'+on+'"><span class="hs-box">'+(on?'✓':'')+'</span><span>'+(core?'<span class="hs-tag">重点</span>':'')+esc(r.t)+'</span></button>'}
+      function item(r,core){var on=!!day.checks[r.k];return '<button type="button" class="hs-item'+(on?' on':'')+'" data-k="'+r.k+'" aria-pressed="'+on+'"><span class="hs-box">'+(on?'✓':'')+'</span><span>'+''+esc(r.t)+'</span></button>'}
       var list=CORE.map(function(r){return item(r,true)}).join('')+(showAll?EXTRA.map(function(r){return item(r,false)}).join(''):'');
       var cc=coreCount(day);
 
@@ -206,13 +205,13 @@
           '<div class="hs-seg" role="tablist"><button type="button" data-off="0" class="'+(this.offset===0?'on':'')+'">今朝の記録</button><button type="button" data-off="1" class="'+(this.offset===1?'on':'')+'">昨日の朝の記録</button></div>'+
           '<div class="hs-times"><div class="hs-time"><label for="hs-bed">寝た時刻</label><input id="hs-bed" type="time" value="'+esc(day.bed||'')+'"></div><div class="hs-time"><label for="hs-wake">起きた時刻</label><input id="hs-wake" type="time" value="'+esc(day.wake||'')+'"></div></div>'+
           '<div class="hs-sum">'+pills+'</div>'+
-          '<div class="hs-head"><b>昨夜〜今朝のルール</b><span>重点 '+cc+'/'+CORE.length+'</span></div>'+
+          '<div class="hs-head"><b>昨夜〜今朝のルール</b><span>'+cc+'/'+CORE.length+'</span></div>'+
           '<div class="hs-list">'+list+'</div>'+
           
         '</div>'+
         '</section><section aria-labelledby="hs-week"><h2 id="hs-week" class="section-title">今週（月〜日）</h2>'+
         '<div class="card hs-card">'+
-          '<div class="hs-head" style="margin-top:0"><b>重点を全部守れた日</b><span>'+allDays+'/7日（目標5日）</span></div>'+
+          '<div class="hs-head" style="margin-top:0"><b>全部守れた日</b><span>'+allDays+'/7日（目標5日）</span></div>'+
           '<div class="hs-week">'+week+'</div>'+
           '<div class="hs-stats">'+stats+'</div>'+
           
@@ -245,7 +244,7 @@
         '<div class="hs-stat"><small>平均就寝時間</small><strong>'+(beds.length?fmtRel(avg(beds)):'—')+'</strong></div>'+
         '<div class="hs-stat"><small>平均起床時間</small><strong>'+(wakes.length?fmtRel(avg(wakes)):'—')+'</strong></div>'+
         '<div class="hs-stat"><small>平均睡眠時間</small><strong>'+(durs.length?fmtDur(avg(durs)):'—')+'</strong></div>'+
-        '<div class="hs-stat"><small>重点を全部守れた日</small><strong>'+all+'日</strong></div></div></div>'+
+        '<div class="hs-stat"><small>全部守れた日</small><strong>'+all+'日</strong></div></div></div>'+
         '<div class="card hs-card" style="margin-top:14px">'+(cnt?rows:'<p class="muted small" style="text-align:center;padding:16px 0">この月の睡眠記録はまだありません</p>')+'</div>';
       this.querySelectorAll('.hsh-nav button').forEach(function(b){b.addEventListener('click',function(){if(b.disabled)return;var n=new Date(self.y,self.m+(+b.getAttribute('data-d')),1);self.y=n.getFullYear();self.m=n.getMonth();self.render()})});
     }
