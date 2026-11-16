@@ -164,6 +164,7 @@
   '.hs-more{margin-top:10px;border:0;background:transparent;color:var(--habita-blue);font-size:13px;font-weight:700;padding:6px 2px}.hs-head{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px}.hs-head b{font-size:13px}.hs-head span{font-size:13px;font-weight:700;color:var(--text-secondary)}'+
   '.hs-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0 14px}.hs-day{text-align:center;font-size:11px;font-weight:700;color:var(--text-secondary)}.hs-dot{width:30px;height:30px;margin:4px auto 0;border-radius:50%;background:var(--canvas);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--text-secondary)}.hs-dot.all{background:var(--success);color:#fff}.hs-dot.some{background:var(--habita-blue-pale);color:var(--habita-blue)}.hs-day.fut{opacity:.45}.hs-dot.today{outline:2px solid var(--habita-blue);outline-offset:1px}'+
   '.hsh-nav{display:flex;align-items:center;justify-content:space-between}.hsh-nav b{font-size:16px;font-weight:800}.hsh-nav .icon-btn{font-size:26px;line-height:1}.hsh-row{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line-subtle)}.hsh-row:last-child{border-bottom:0}.hsh-date{width:56px;font-weight:800;font-size:15px}.hsh-date small{font-size:11px;color:var(--text-secondary)}.hsh-mid{flex:1;display:flex;flex-direction:column;gap:2px}.hsh-mid b{font-size:15px}.hsh-mid span{font-size:12px;color:var(--text-secondary);font-weight:600}.hsh-row .hs-dot{margin:0}'+
+  '.hs-reset-wrap{text-align:center;margin-top:14px}.hs-reset{border:0;background:transparent;font-size:12px;font-weight:600;color:var(--text-secondary);opacity:.7;padding:6px 10px;text-decoration:underline;text-underline-offset:3px}.hs-reset.on{color:var(--danger);opacity:1}'+
   '.hs-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hs-stat{background:var(--canvas);border-radius:var(--r-sm);padding:10px 12px}.hs-stat small{display:block;font-size:11px;font-weight:700;color:var(--text-secondary)}.hs-stat strong{font-size:18px;font-weight:800}.hs-note{margin:12px 2px 0;font-size:12px;color:var(--text-secondary);line-height:1.6}';
 
   function injectCss(){if(document.getElementById('hs-css'))return;var s=document.createElement('style');s.id='hs-css';s.textContent=css;document.head.appendChild(s)}
@@ -206,7 +207,7 @@
           '<div class="hs-times"><div class="hs-time"><label for="hs-bed">寝た時刻</label><input id="hs-bed" type="time" value="'+esc(day.bed||'')+'"></div><div class="hs-time"><label for="hs-wake">起きた時刻</label><input id="hs-wake" type="time" value="'+esc(day.wake||'')+'"></div></div>'+
           '<div class="hs-sum">'+pills+'</div>'+
           '<div class="hs-head"><b>昨夜〜今朝のルール</b><span>'+cc+'/'+CORE.length+'</span></div>'+
-          '<div class="hs-list">'+list+'</div>'+
+          '<div class="hs-list">'+list+'</div>'+'<div class="hs-reset-wrap"><button type="button" class="hs-reset">この日の記録をリセット</button></div>'+
           
         '</div>'+
         '</section><section aria-labelledby="hs-week"><h2 id="hs-week" class="section-title">今週（月〜日）</h2>'+
@@ -221,6 +222,7 @@
       this.querySelectorAll('.hs-item').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');update(function(r){r.checks[k]=!r.checks[k];if(!r.checks[k])delete r.checks[k]})})});
       this.querySelectorAll('.hs-seg button').forEach(function(b){b.addEventListener('click',function(){self.offset=+b.getAttribute('data-off');self.render()})});
       
+      var rb=this.querySelector('.hs-reset'),armed=false,rt=null;rb.addEventListener('click',function(){if(!armed){armed=true;rb.textContent='もう一度押すとリセットします';rb.classList.add('on');rt=setTimeout(function(){armed=false;rb.textContent='この日の記録をリセット';rb.classList.remove('on')},3000);return}clearTimeout(rt);update(function(r){delete r.bed;delete r.wake;r.checks={}})});
       ['bed','wake'].forEach(function(f){var inp=self.querySelector('#hs-'+f);inp.addEventListener('change',function(){var val=inp.value;update(function(r){if(val)r[f]=val;else delete r[f]})})});
     }
   }
