@@ -163,7 +163,7 @@
   '.hs-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}.hs-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1.5px solid var(--line-subtle);background:var(--surface);border-radius:var(--r-md);padding:12px;font-size:14px;font-weight:600;line-height:1.45;touch-action:manipulation;transition:transform .1s,background-color .18s}.hs-item:active{transform:scale(.98)}.hs-box{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800}.hs-item.on{background:var(--success-pale);border-color:var(--success)}.hs-item.on .hs-box{background:var(--success);border-color:var(--success)}.hs-tag{font-size:10px;font-weight:800;color:var(--habita-blue);background:var(--habita-blue-pale);border-radius:6px;padding:2px 6px;margin-right:6px;vertical-align:1px}'+
   '.hs-more{margin-top:10px;border:0;background:transparent;color:var(--habita-blue);font-size:13px;font-weight:700;padding:6px 2px}.hs-head{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px}.hs-head b{font-size:13px}.hs-head span{font-size:13px;font-weight:700;color:var(--text-secondary)}'+
   '.hs-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0 14px}.hs-day{text-align:center;font-size:11px;font-weight:700;color:var(--text-secondary)}.hs-dot{width:30px;height:30px;margin:4px auto 0;border-radius:50%;background:var(--canvas);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--text-secondary)}.hs-dot.all{background:var(--success);color:#fff}.hs-dot.some{background:var(--habita-blue-pale);color:var(--habita-blue)}.hs-day.fut{opacity:.45}.hs-dot.today{outline:2px solid var(--habita-blue);outline-offset:1px}'+
-  '.hsh-nav{display:flex;align-items:center;justify-content:space-between}.hsh-nav b{font-size:16px;font-weight:800}.hsh-nav .icon-btn{font-size:26px;line-height:1}.hsh-row{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line-subtle)}.hsh-row:last-child{border-bottom:0}.hsh-date{width:56px;font-weight:800;font-size:15px}.hsh-date small{font-size:11px;color:var(--text-secondary)}.hsh-mid{flex:1;display:flex;flex-direction:column;gap:2px}.hsh-mid b{font-size:15px}.hsh-mid span{font-size:12px;color:var(--text-secondary);font-weight:600}.hsh-row .hs-dot{margin:0}'+
+  '.hsh-nav{display:flex;align-items:center;justify-content:space-between}.hsh-nav b{font-size:16px;font-weight:800}.hsh-nav .icon-btn{font-size:26px;line-height:1}.hsh-row{width:100%;text-align:left;background:transparent;border-left:0;border-right:0;border-top:0;font:inherit;color:inherit;scroll-margin-top:80px;display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line-subtle)}.hsh-row.open{background:var(--habita-blue-pale);border-radius:var(--r-sm);padding-left:8px;padding-right:8px}.hsh-editwrap{padding:12px 0 6px;border-bottom:1px solid var(--line-subtle)}.hsh-pick{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:var(--habita-blue);padding:2px 2px 10px;border-bottom:1px solid var(--line-subtle)}.hsh-pick input{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:var(--surface);color:var(--text);min-width:0}.hsh-hint{margin:10px 2px 2px;font-size:12px;color:var(--text-secondary)}.hsh-date{width:56px;font-weight:800;font-size:15px}.hsh-date small{font-size:11px;color:var(--text-secondary)}.hsh-mid{flex:1;display:flex;flex-direction:column;gap:2px}.hsh-mid b{font-size:15px}.hsh-mid span{font-size:12px;color:var(--text-secondary);font-weight:600}.hsh-row .hs-dot{margin:0}'+
   '.hs-reset-wrap{text-align:center;margin-top:14px}.hs-reset{border:0;background:transparent;font-size:12px;font-weight:600;color:var(--text-secondary);opacity:.7;padding:6px 10px;text-decoration:underline;text-underline-offset:3px}.hs-reset.on{color:var(--danger);opacity:1}'+
   '.hs-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hs-stat{background:var(--canvas);border-radius:var(--r-sm);padding:10px 12px}.hs-stat small{display:block;font-size:11px;font-weight:700;color:var(--text-secondary)}.hs-stat strong{font-size:18px;font-weight:800}.hs-note{margin:12px 2px 0;font-size:12px;color:var(--text-secondary);line-height:1.6}';
 
@@ -172,7 +172,7 @@
   class HabitaSleep extends HTMLElement{
     connectedCallback(){this.offset=this.offset||0;this.render()}
     render(){
-      var self=this,data=load(),today=new Date(),d=addDays(today,-this.offset),key=ymd(d);
+      var self=this,data=load(),today=new Date(),d=addDays(today,-(this.offset||0)),key=this.dateKey||ymd(d);
       var day=data.days[key]||{checks:{}};day.checks=day.checks||{};
       var showAll=true;
       var dm=dur(day),br=bedRel(day.bed),wm=toMin(day.wake);
@@ -184,6 +184,11 @@
       function item(r,core){var on=!!day.checks[r.k];return '<button type="button" class="hs-item'+(on?' on':'')+'" data-k="'+r.k+'" aria-pressed="'+on+'"><span class="hs-box">'+(on?'✓':'')+'</span><span>'+''+esc(r.t)+'</span></button>'}
       var list=CORE.map(function(r){return item(r,true)}).join('')+(showAll?EXTRA.map(function(r){return item(r,false)}).join(''):'');
       var cc=coreCount(day);
+      var editorHtml='<div class="hs-times"><div class="hs-time"><label for="hs-bed">寝た時刻</label><input id="hs-bed" type="time" value="'+esc(day.bed||'')+'"></div><div class="hs-time"><label for="hs-wake">起きた時刻</label><input id="hs-wake" type="time" value="'+esc(day.wake||'')+'"></div></div>'+
+          '<div class="hs-sum">'+pills+'</div>'+
+          '<div class="hs-head"><b>'+(this.compact?'その日のルール':'昨夜〜今朝のルール')+'</b><span>'+cc+'/'+CORE.length+'</span></div>'+
+          '<div class="hs-list">'+list+'</div>'+'<div class="hs-reset-wrap"><button type="button" class="hs-reset">この日の記録をリセット</button></div>';
+      if(this.compact){this.innerHTML='<div class="hs-edit">'+editorHtml+'</div>';this.bind(key);return}
 
       // この7日間（今日を含む）
       var week='',allDays=0,beds=[],wakes=[],durs=[],mon=addDays(today,-((today.getDay()+6)%7)),tk=ymd(today);
@@ -204,10 +209,7 @@
       this.innerHTML='<div class="stack"><header class="page-header"><h1 class="page-title">睡眠</h1></header><section aria-label="昨夜の睡眠">'+
         '<div class="card hs-card">'+
           '<div class="hs-seg" role="tablist"><button type="button" data-off="0" class="'+(this.offset===0?'on':'')+'">今朝の記録</button><button type="button" data-off="1" class="'+(this.offset===1?'on':'')+'">昨日の朝の記録</button></div>'+
-          '<div class="hs-times"><div class="hs-time"><label for="hs-bed">寝た時刻</label><input id="hs-bed" type="time" value="'+esc(day.bed||'')+'"></div><div class="hs-time"><label for="hs-wake">起きた時刻</label><input id="hs-wake" type="time" value="'+esc(day.wake||'')+'"></div></div>'+
-          '<div class="hs-sum">'+pills+'</div>'+
-          '<div class="hs-head"><b>昨夜〜今朝のルール</b><span>'+cc+'/'+CORE.length+'</span></div>'+
-          '<div class="hs-list">'+list+'</div>'+'<div class="hs-reset-wrap"><button type="button" class="hs-reset">この日の記録をリセット</button></div>'+
+          editorHtml+
           
         '</div>'+
         '</section><section aria-labelledby="hs-week"><h2 id="hs-week" class="section-title">今週（月〜日）</h2>'+
@@ -218,10 +220,13 @@
           
         '</div></section></div>';
 
-      function update(fn){var v=load(),r=v.days[key]||{checks:{}};r.checks=r.checks||{};fn(r,v);var empty=!r.bed&&!r.wake&&!Object.keys(r.checks).some(function(k){return r.checks[k]});if(empty)delete v.days[key];else v.days[key]=r;save(v);self.render()}
-      this.querySelectorAll('.hs-item').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');update(function(r){r.checks[k]=!r.checks[k];if(!r.checks[k])delete r.checks[k]})})});
+      this.bind(key);
       this.querySelectorAll('.hs-seg button').forEach(function(b){b.addEventListener('click',function(){self.offset=+b.getAttribute('data-off');self.render()})});
-      
+    }
+    bind(key){
+      var self=this;
+      function update(fn){var v=load(),r=v.days[key]||{checks:{}};r.checks=r.checks||{};fn(r,v);var empty=!r.bed&&!r.wake&&!Object.keys(r.checks).some(function(k){return r.checks[k]});if(empty)delete v.days[key];else v.days[key]=r;save(v);self.render();if(self.onChange)self.onChange()}
+      this.querySelectorAll('.hs-item').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');update(function(r){r.checks[k]=!r.checks[k];if(!r.checks[k])delete r.checks[k]})})});
       var rb=this.querySelector('.hs-reset'),armed=false,rt=null;rb.addEventListener('click',function(){if(!armed){armed=true;rb.textContent='もう一度押すとリセットします';rb.classList.add('on');rt=setTimeout(function(){armed=false;rb.textContent='この日の記録をリセット';rb.classList.remove('on')},3000);return}clearTimeout(rt);update(function(r){delete r.bed;delete r.wake;r.checks={}})});
       ['bed','wake'].forEach(function(f){var inp=self.querySelector('#hs-'+f);inp.addEventListener('change',function(){var val=inp.value;update(function(r){if(val)r[f]=val;else delete r[f]})})});
     }
@@ -230,15 +235,15 @@
     connectedCallback(){var t=new Date();this.y=t.getFullYear();this.m=t.getMonth();this.render()}
     render(){
       var self=this,data=load(),first=new Date(this.y,this.m,1),last=new Date(this.y,this.m+1,0),t=new Date(),isCur=this.y===t.getFullYear()&&this.m===t.getMonth();
-      var rows='',beds=[],wakes=[],durs=[],all=0,cnt=0;
+      var rows='',beds=[],wakes=[],durs=[],all=0,cnt=0,ek=this.editKey,tk=ymd(t);
       for(var dd=last;dd>=first;dd=addDays(dd,-1)){
-        var k=ymd(dd),r=data.days[k];if(!r)continue;cnt++;
+        var k=ymd(dd),r=data.days[k];if(!r&&k!==ek)continue;cnt++;r=r||{checks:{}};
         var n=coreCount(r),b=bedRel(r.bed),w=toMin(r.wake),du=dur(r),ex=0;
         EXTRA.forEach(function(x){if(r.checks&&r.checks[x.k])ex++});
         if(n===CORE.length)all++;if(b!==null)beds.push(b);if(w!==null)wakes.push(w);if(du!==null)durs.push(du);
-        rows+='<div class="hsh-row"><div class="hsh-date">'+(dd.getMonth()+1)+'/'+dd.getDate()+'<small>（'+WD[dd.getDay()]+'）</small></div>'+
+        rows+='<button type="button" class="hsh-row'+(k===ek?' open':'')+'" data-k="'+k+'"><div class="hsh-date">'+(dd.getMonth()+1)+'/'+dd.getDate()+'<small>（'+WD[dd.getDay()]+'）</small></div>'+
           '<div class="hsh-mid"><b>'+esc(r.bed||'--:--')+' → '+esc(r.wake||'--:--')+'</b><span>'+(du!==null?fmtDur(du):'睡眠時間なし')+' ・ ルール '+(n+ex)+'/'+(CORE.length+EXTRA.length)+'</span></div>'+
-          '<div class="hs-dot'+(n===CORE.length?' all':' some')+'">'+(n===CORE.length?'✓':n)+'</div></div>';
+          '<div class="hs-dot'+(n===CORE.length?' all':' some')+'">'+(n===CORE.length?'✓':n)+'</div></button>'+(k===ek?'<div class="hsh-editwrap"></div>':'');
       }
       function avg(a){return a.reduce(function(x,y){return x+y},0)/a.length}
       this.innerHTML='<div class="card hs-card"><div class="hsh-nav"><button type="button" class="icon-btn" data-d="-1" aria-label="前の月">‹</button><b>'+this.y+'年'+(this.m+1)+'月</b><button type="button" class="icon-btn" data-d="1" aria-label="次の月"'+(isCur?' disabled style="opacity:.3"':'')+'>›</button></div>'+
@@ -247,7 +252,12 @@
         '<div class="hs-stat"><small>平均起床時間</small><strong>'+(wakes.length?fmtRel(avg(wakes)):'—')+'</strong></div>'+
         '<div class="hs-stat"><small>平均睡眠時間</small><strong>'+(durs.length?fmtDur(avg(durs)):'—')+'</strong></div>'+
         '<div class="hs-stat"><small>全部守れた日</small><strong>'+all+'日</strong></div></div></div>'+
-        '<div class="card hs-card" style="margin-top:14px">'+(cnt?rows:'<p class="muted small" style="text-align:center;padding:16px 0">この月の睡眠記録はまだありません</p>')+'</div>';
+        '<div class="card hs-card" style="margin-top:14px"><label class="hsh-pick"><span>日付を選んで記録・修正</span><input type="date" max="'+tk+'" value="'+(ek||'')+'"></label>'+(cnt?'<p class="hsh-hint">日付を押すと記録を修正できます</p>'+rows:'<p class="muted small" style="text-align:center;padding:16px 0">この月の睡眠記録はまだありません</p>')+'</div>';
+      this.querySelectorAll('.hsh-row').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');self.editKey=self.editKey===k?null:k;self.render()})});
+      var pick=this.querySelector('.hsh-pick input');pick.addEventListener('change',function(){var v=pick.value;if(!v||v>tk)return;self.editKey=v;var p=v.split('-');self.y=+p[0];self.m=+p[1]-1;self.render()});
+      var wrap=this.querySelector('.hsh-editwrap');
+      if(wrap){var ed=document.createElement('habita-sleep');ed.dateKey=ek;ed.compact=true;ed.onChange=function(){self.render()};wrap.appendChild(ed);
+        if(true){var row=this.querySelector('.hsh-row.open');if(row&&this.justOpened!==ek){this.justOpened=ek;setTimeout(function(){row.scrollIntoView({block:'start',behavior:'smooth'})},30)}}}
       this.querySelectorAll('.hsh-nav button').forEach(function(b){b.addEventListener('click',function(){if(b.disabled)return;var n=new Date(self.y,self.m+(+b.getAttribute('data-d')),1);self.y=n.getFullYear();self.m=n.getMonth();self.render()})});
     }
   }
