@@ -225,10 +225,10 @@
     }
     bind(key){
       var self=this;
-      function update(fn){var v=load(),r=v.days[key]||{checks:{}};r.checks=r.checks||{};fn(r,v);var empty=!r.bed&&!r.wake&&!Object.keys(r.checks).some(function(k){return r.checks[k]});if(empty)delete v.days[key];else v.days[key]=r;save(v);self.render();if(self.onChange)self.onChange()}
+      function update(fn,quiet){var v=load(),r=v.days[key]||{checks:{}};r.checks=r.checks||{};fn(r,v);var empty=!r.bed&&!r.wake&&!Object.keys(r.checks).some(function(k){return r.checks[k]});if(empty)delete v.days[key];else v.days[key]=r;save(v);if(quiet)return;self.render();if(self.onChange)self.onChange()}
       this.querySelectorAll('.hs-item').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');update(function(r){r.checks[k]=!r.checks[k];if(!r.checks[k])delete r.checks[k]})})});
       var rb=this.querySelector('.hs-reset'),armed=false,rt=null;rb.addEventListener('click',function(){if(!armed){armed=true;rb.textContent='もう一度押すとリセットします';rb.classList.add('on');rt=setTimeout(function(){armed=false;rb.textContent='この日の記録をリセット';rb.classList.remove('on')},3000);return}clearTimeout(rt);update(function(r){delete r.bed;delete r.wake;r.checks={}})});
-      ['bed','wake'].forEach(function(f){var inp=self.querySelector('#hs-'+f);inp.addEventListener('change',function(){var val=inp.value;update(function(r){if(val)r[f]=val;else delete r[f]})})});
+      ['bed','wake'].forEach(function(f){var inp=self.querySelector('#hs-'+f);function put(){var val=inp.value;self._dirty=true;update(function(r){if(val)r[f]=val;else delete r[f]},true)}inp.addEventListener('input',put);inp.addEventListener('change',put);inp.addEventListener('blur',function(){setTimeout(function(){if(!self._dirty)return;var a=document.activeElement;if(a&&a.type==='time'&&self.contains(a))return;self._dirty=false;self.render();if(self.onChange)self.onChange()},0)})});
     }
   }
   class HabitaSleepHistory extends HTMLElement{
