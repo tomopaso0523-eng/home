@@ -158,6 +158,10 @@
   function fmtDur(m){m=Math.round(m);return Math.floor(m/60)+'時間'+(m%60?pad(m%60)+'分':'')}
   function dur(day){var b=toMin(day.bed),w=toMin(day.wake);if(b===null||w===null)return null;var d=w-b;if(d<=0)d+=1440;return d}
   function coreCount(day){var c=day&&day.checks||{},n=0;CORE.forEach(function(r){if(c[r.k])n++});return n}
+  function fromKey(k){var p=k.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+  function curKey(){var n=new Date();return ymd(n.getHours()>=14?addDays(n,1):n)}
+  function md(d){return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'}
+  function nightLabel(k){var w=fromKey(k),n=addDays(w,-1);return md(n)+'の夜〜'+md(w)+'の朝'}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
   var css='.hs-card{padding:16px}.hs-seg{display:flex;background:var(--canvas);border-radius:999px;padding:3px;margin-bottom:14px}.hs-seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px 0;font-size:13px;font-weight:700;color:var(--text-secondary)}.hs-seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}'+
@@ -168,6 +172,7 @@
   '.hs-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0 14px}.hs-day{text-align:center;font-size:11px;font-weight:700;color:var(--text-secondary)}.hs-dot{width:30px;height:30px;margin:4px auto 0;border-radius:50%;background:var(--canvas);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--text-secondary)}.hs-dot.all{background:var(--success);color:#fff}.hs-dot.some{background:var(--habita-blue-pale);color:var(--habita-blue)}.hs-day.fut{opacity:.45}.hs-dot.today{outline:2px solid var(--habita-blue);outline-offset:1px}'+
   '.hsh-nav{display:flex;align-items:center;justify-content:space-between}.hsh-nav b{font-size:16px;font-weight:800}.hsh-nav .icon-btn{font-size:26px;line-height:1}.hsh-row{width:100%;text-align:left;background:transparent;border-left:0;border-right:0;border-top:0;font:inherit;color:inherit;scroll-margin-top:80px;display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line-subtle)}.hsh-row.open{background:var(--habita-blue-pale);border-radius:var(--r-sm);padding-left:8px;padding-right:8px}.hsh-editwrap{padding:12px 0 6px;border-bottom:1px solid var(--line-subtle)}.hsh-pick{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:var(--habita-blue);padding:2px 2px 10px;border-bottom:1px solid var(--line-subtle)}.hsh-pick input{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:var(--surface);color:var(--text);min-width:0}.hsh-hint{margin:10px 2px 2px;font-size:12px;color:var(--text-secondary)}.hsh-date{width:56px;font-weight:800;font-size:15px}.hsh-date small{font-size:11px;color:var(--text-secondary)}.hsh-mid{flex:1;display:flex;flex-direction:column;gap:2px}.hsh-mid b{font-size:15px}.hsh-mid span{font-size:12px;color:var(--text-secondary);font-weight:600}.hsh-row .hs-dot{margin:0}'+
   '.hs-reset-wrap{text-align:center;margin-top:14px}.hs-reset{border:0;background:transparent;font-size:12px;font-weight:600;color:var(--text-secondary);opacity:.7;padding:6px 10px;text-decoration:underline;text-underline-offset:3px}.hs-reset.on{color:var(--danger);opacity:1}'+
+  '.hs-nnav{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:-4px -4px 14px}.hs-nnav b{font-size:15px;font-weight:800;text-align:center;flex:1}.hs-nnav .icon-btn{font-size:26px;line-height:1;flex:none}.hs-nnav .icon-btn:disabled{opacity:.25}'+
   '.hs-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hs-stat{background:var(--canvas);border-radius:var(--r-sm);padding:10px 12px}.hs-stat small{display:block;font-size:11px;font-weight:700;color:var(--text-secondary)}.hs-stat strong{font-size:18px;font-weight:800}.hs-note{margin:12px 2px 0;font-size:12px;color:var(--text-secondary);line-height:1.6}';
 
   function injectCss(){if(document.getElementById('hs-css'))return;var s=document.createElement('style');s.id='hs-css';s.textContent=css;document.head.appendChild(s)}
@@ -175,7 +180,7 @@
   class HabitaSleep extends HTMLElement{
     connectedCallback(){this.offset=this.offset||0;this.render()}
     render(){
-      var self=this,data=load(),today=new Date(),d=addDays(today,-(this.offset||0)),key=this.dateKey||ymd(d);
+      var self=this,data=load(),today=new Date(),ck=curKey(),key=this.dateKey||ymd(addDays(fromKey(ck),-(this.offset||0)));
       var day=data.days[key]||{checks:{}};day.checks=day.checks||{};
       var showAll=true;
       var dm=dur(day),br=bedRel(day.bed),wm=toMin(day.wake);
@@ -189,7 +194,7 @@
       var cc=coreCount(day);
       var editorHtml='<div class="hs-times"><div class="hs-time"><label for="hs-bed">寝た時刻</label><input id="hs-bed" type="time" value="'+esc(day.bed||'')+'"></div><div class="hs-time"><label for="hs-wake">起きた時刻</label><input id="hs-wake" type="time" value="'+esc(day.wake||'')+'"></div></div>'+
           '<div class="hs-sum">'+pills+'</div>'+
-          '<div class="hs-head"><b>'+(this.compact?'その日のルール':'昨夜〜今朝のルール')+'</b><span>'+cc+'/'+CORE.length+'</span></div>'+
+          '<div class="hs-head"><b>'+'ルール'+'</b><span>'+cc+'/'+CORE.length+'</span></div>'+
           '<div class="hs-list">'+list+'</div>'+'<div class="hs-reset-wrap"><button type="button" class="hs-reset">この日の記録をリセット</button></div>';
       if(this.compact){this.innerHTML='<div class="hs-edit">'+editorHtml+'</div>';this.bind(key);return}
 
@@ -209,9 +214,9 @@
         '<div class="hs-stat"><small>平均睡眠時間</small><strong>'+(durs.length?fmtDur(avg(durs)):'—')+'</strong></div>'+
         '<div class="hs-stat"><small>就寝時間のばらつき</small><strong>'+(spread===null?'—':'±'+Math.round(spread)+'分')+'</strong></div>';
 
-      this.innerHTML='<div class="stack"><header class="page-header"><h1 class="page-title">睡眠</h1></header><section aria-label="昨夜の睡眠">'+
+      this.innerHTML='<div class="stack"><header class="page-header"><h1 class="page-title">睡眠</h1></header><section aria-label="睡眠の記録">'+
         '<div class="card hs-card">'+
-          '<div class="hs-seg" role="tablist"><button type="button" data-off="0" class="'+(this.offset===0?'on':'')+'">今朝の記録</button><button type="button" data-off="1" class="'+(this.offset===1?'on':'')+'">昨日の朝の記録</button></div>'+
+          '<div class="hs-nnav"><button type="button" class="icon-btn" data-d="1" aria-label="前の夜">‹</button><b>'+nightLabel(key)+'</b><button type="button" class="icon-btn" data-d="-1" aria-label="次の夜"'+((this.offset||0)<=0?' disabled':'')+'>›</button></div>'+
           editorHtml+
           
         '</div>'+
@@ -224,7 +229,7 @@
         '</div></section></div>';
 
       this.bind(key);
-      this.querySelectorAll('.hs-seg button').forEach(function(b){b.addEventListener('click',function(){self.offset=+b.getAttribute('data-off');self.render()})});
+      this.querySelectorAll('.hs-nnav button').forEach(function(b){b.addEventListener('click',function(){if(b.disabled)return;self.offset=Math.max(0,(self.offset||0)+(+b.getAttribute('data-d')));self.render()})});
     }
     bind(key){
       var self=this;
@@ -235,17 +240,16 @@
     }
   }
   class HabitaSleepHistory extends HTMLElement{
-    connectedCallback(){var t=new Date();this.y=t.getFullYear();this.m=t.getMonth();this.render()}
+    connectedCallback(){var t=fromKey(curKey());this.y=t.getFullYear();this.m=t.getMonth();this.render()}
     render(){
-      var self=this,data=load(),first=new Date(this.y,this.m,1),last=new Date(this.y,this.m+1,0),t=new Date(),isCur=this.y===t.getFullYear()&&this.m===t.getMonth();
+      var self=this,data=load(),first=new Date(this.y,this.m,1),last=new Date(this.y,this.m+1,0),t=fromKey(curKey()),isCur=this.y===t.getFullYear()&&this.m===t.getMonth();
       var rows='',beds=[],wakes=[],durs=[],all=0,cnt=0,ek=this.editKey,tk=ymd(t);
       for(var dd=last;dd>=first;dd=addDays(dd,-1)){
         var k=ymd(dd),r=data.days[k];if(!r&&k!==ek)continue;cnt++;r=r||{checks:{}};
         var n=coreCount(r),b=bedRel(r.bed),w=toMin(r.wake),du=dur(r),ex=0;
         EXTRA.forEach(function(x){if(r.checks&&r.checks[x.k])ex++});
         if(n===CORE.length)all++;if(b!==null)beds.push(b);if(w!==null)wakes.push(w);if(du!==null)durs.push(du);
-        rows+='<button type="button" class="hsh-row'+(k===ek?' open':'')+'" data-k="'+k+'"><div class="hsh-date">'+(dd.getMonth()+1)+'/'+dd.getDate()+'<small>（'+WD[dd.getDay()]+'）</small></div>'+
-          '<div class="hsh-mid"><b>'+esc(r.bed||'--:--')+' → '+esc(r.wake||'--:--')+'</b><span>'+(du!==null?fmtDur(du):'睡眠時間なし')+' ・ ルール '+(n+ex)+'/'+(CORE.length+EXTRA.length)+'</span></div>'+
+        rows+='<button type="button" class="hsh-row'+(k===ek?' open':'')+'" data-k="'+k+'"><div class="hsh-mid"><b>'+nightLabel(k)+'</b><span>'+esc(r.bed||'--:--')+' → '+esc(r.wake||'--:--')+' ・ '+(du!==null?fmtDur(du):'睡眠時間なし')+' ・ ルール '+(n+ex)+'/'+(CORE.length+EXTRA.length)+'</span></div>'+
           '<div class="hs-dot'+(n===CORE.length?' all':' some')+'">'+(n===CORE.length?'✓':n)+'</div></button>'+(k===ek?'<div class="hsh-editwrap"></div>':'');
       }
       function avg(a){return a.reduce(function(x,y){return x+y},0)/a.length}
@@ -255,9 +259,9 @@
         '<div class="hs-stat"><small>平均起床時間</small><strong>'+(wakes.length?fmtRel(avg(wakes)):'—')+'</strong></div>'+
         '<div class="hs-stat"><small>平均睡眠時間</small><strong>'+(durs.length?fmtDur(avg(durs)):'—')+'</strong></div>'+
         '<div class="hs-stat"><small>全部守れた日</small><strong>'+all+'日</strong></div></div></div>'+
-        '<div class="card hs-card" style="margin-top:14px"><label class="hsh-pick"><span>日付を選んで記録・修正</span><input type="date" max="'+tk+'" value="'+(ek||'')+'"></label>'+(cnt?'<p class="hsh-hint">日付を押すと記録を修正できます</p>'+rows:'<p class="muted small" style="text-align:center;padding:16px 0">この月の睡眠記録はまだありません</p>')+'</div>';
+        '<div class="card hs-card" style="margin-top:14px"><label class="hsh-pick"><span>夜の日付を選んで記録・修正</span><input type="date" max="'+ymd(addDays(fromKey(curKey()),-1))+'" value="'+(ek?ymd(addDays(fromKey(ek),-1)):'')+'"></label>'+(cnt?'<p class="hsh-hint">押すと記録を修正できます</p>'+rows:'<p class="muted small" style="text-align:center;padding:16px 0">この月の睡眠記録はまだありません</p>')+'</div>';
       this.querySelectorAll('.hsh-row').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-k');self.editKey=self.editKey===k?null:k;self.render()})});
-      var pick=this.querySelector('.hsh-pick input');pick.addEventListener('change',function(){var v=pick.value;if(!v||v>tk)return;self.editKey=v;var p=v.split('-');self.y=+p[0];self.m=+p[1]-1;self.render()});
+      var pick=this.querySelector('.hsh-pick input');pick.addEventListener('change',function(){var v=pick.value;if(!v)return;var k2=ymd(addDays(fromKey(v),1));if(k2>curKey())return;self.editKey=k2;var p=k2.split('-');self.y=+p[0];self.m=+p[1]-1;self.render()});
       var wrap=this.querySelector('.hsh-editwrap');
       if(wrap){var ed=document.createElement('habita-sleep');ed.dateKey=ek;ed.compact=true;ed.onChange=function(){self.render()};wrap.appendChild(ed);
         if(true){var row=this.querySelector('.hsh-row.open');if(row&&this.justOpened!==ek){this.justOpened=ek;setTimeout(function(){row.scrollIntoView({block:'start',behavior:'smooth'})},30)}}}
