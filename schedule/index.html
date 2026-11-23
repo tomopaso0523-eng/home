@@ -93,6 +93,12 @@ main.in-l{animation:inL .2s ease-out} main.in-r{animation:inR .2s ease-out}
 .tl{position:relative;margin:0 16px 24px 0;height:calc(var(--hour) * 17 + 18px);cursor:copy;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .draft{position:absolute;left:58px;right:4px;border-radius:12px;background:var(--accent-soft);border:2px dashed var(--accent);z-index:6;padding:4px 10px;font-size:12px;font-weight:800;color:var(--accent);pointer-events:none;font-variant-numeric:tabular-nums;box-shadow:var(--shadow);animation:pop .16s ease-out}
 @keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:none;opacity:1}}
+.draft b{display:inline-block;font-size:13px;transform-origin:left center}
+.draft small{margin-left:6px;font-size:11px;font-weight:700;opacity:.8}
+.draft.tick b{animation:tick .2s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tick{0%{transform:scale(1.25)}100%{transform:none}}
+.hr span{transition:color .12s}
+.hr.on span{color:var(--accent);font-weight:800}
 .ut .tm{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
 .hr{position:absolute;left:0;right:0;height:var(--hour);border-top:1px solid var(--line)}
 .hr span{position:absolute;left:0;width:52px;text-align:right;top:-9px;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding-right:6px;font-variant-numeric:tabular-nums}
@@ -131,7 +137,7 @@ main.in-l{animation:inL .2s ease-out} main.in-r{animation:inR .2s ease-out}
 .scrim.open{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;z-index:50;background:var(--surface);border-radius:24px 24px 0 0;padding:8px 20px calc(16px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:92%;overflow-y:auto;visibility:hidden}
 .sheet.open{transform:none;visibility:visible}
-@media (prefers-reduced-motion: reduce){.sheet,.scrim,.blk,.bar span{transition:none} main.in-l,main.in-r,.draft{animation:none}}
+@media (prefers-reduced-motion: reduce){.sheet,.scrim,.blk,.bar span{transition:none} main.in-l,main.in-r,.draft,.draft.tick b{animation:none}}
 .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 8px}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .sheet-head h2{margin:0;font-size:15px;color:var(--muted);font-weight:700}
@@ -459,7 +465,7 @@ function renderTimeline(){
   if(outside.length) h += '<div class="untimed"><h3>6時より前・23時以降</h3>'+outside.map(row).join("")+'</div>';
   const H = hourPx();
   h += '<div class="tl" id="tl" aria-label="タイムライン。空いている時間をタップすると追加">';
-  for(let i=DS/60;i<=DE/60;i++) h += '<div class="hr" style="top:'+yOf(i*60)+'px"><span>'+pad(i)+':00</span></div>';
+  for(let i=DS/60;i<=DE/60;i++) h += '<div class="hr" data-h="'+i+'" style="top:'+yOf(i*60)+'px"><span>'+pad(i)+':00</span></div>';
   for(const x of layout(timed)){
     const top = yOf(x.s), ht = Math.max((x.e-x.s)/60*H-3, 26);
     const compact = (x.e-x.s) < 45;
@@ -635,22 +641,43 @@ main.addEventListener("keydown", e=>{
   if((e.key==="Enter"||e.key===" ") && e.target.matches("[data-id]")){ e.preventDefault(); openSheet({id:e.target.dataset.id}); }
 });
 
-/* haptics: Vibration API where it exists (Android); on iPhone Safari (iOS 18+) toggling a hidden
-   <input switch> gives a light tap, since Safari has no Vibration API */
-let hapEl=null;
-function haptic(strong){
-  try{ if(typeof navigator.vibrate==="function"){ navigator.vibrate(strong ? 20 : 8); return; } }catch(e){}
+/* feedback while picking a time range: Android vibrates. iPhone Safari has no way to vibrate
+   from a web page (iOS 26.5 closed the old trick), so it gets a short click sound instead.
+   audioSession "ambient" = follows the silent switch and does not stop music that is playing. */
+let actx=null, unlocked=false;
+function audio(){
+  if(!actx){
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null;
+    try{ if(navigator.audioSession) navigator.audioSession.type="ambient"; }catch(e){}
+    try{ actx=new AC(); }catch(e){ return null; }
+  }
+  if(actx.state==="suspended") actx.resume().catch(()=>{});
+  return actx;
+}
+function unlockAudio(){
+  if(unlocked) return;
+  const ac=audio(); if(!ac) return;
+  try{ const b=ac.createBuffer(1,1,22050), src=ac.createBufferSource(); src.buffer=b; src.connect(ac.destination); src.start(0); unlocked=true; }catch(e){}
+}
+["touchend","click","keydown"].forEach(t=>document.addEventListener(t, unlockAudio, {passive:true, capture:true}));
+function clickSound(strong){
+  const ac=audio(); if(!ac || ac.state!=="running") return;
   try{
-    if(!hapEl){
-      hapEl=document.createElement("label");
-      hapEl.setAttribute("aria-hidden","true");
-      hapEl.style.cssText="position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none";
-      const i=document.createElement("input"); i.type="checkbox"; i.setAttribute("switch",""); i.tabIndex=-1;
-      hapEl.appendChild(i); hapEl.addEventListener("click", e=>e.stopPropagation()); document.body.appendChild(hapEl);
-    }
-    hapEl.click();
+    const t=ac.currentTime, o=ac.createOscillator(), g=ac.createGain();
+    o.type="triangle";
+    o.frequency.setValueAtTime(strong?900:1800, t);
+    o.frequency.exponentialRampToValueAtTime(strong?450:900, t+0.03);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(strong?0.28:0.2, t+0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+(strong?0.08:0.04));
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+0.1);
   }catch(e){}
 }
+function feedback(strong){
+  try{ if(typeof navigator.vibrate==="function" && navigator.vibrate(strong ? 20 : 8)) return; }catch(e){}
+  clickSound(strong);
+}
+const durText = m => (m>=60 ? Math.floor(m/60)+"時間" : "") + (m%60 ? (m%60)+"分" : "");
 
 /* long-press (touch) or drag (mouse) on an empty part of the timeline to pick a time range */
 const SNAP=15;
@@ -665,16 +692,22 @@ function crRange(){
 function drawDraft(){
   const tl=$("tl"); if(!tl) return;
   const [s,e]=crRange(), H=hourPx();
-  let d=$("draft"); if(!d){ d=document.createElement("div"); d.id="draft"; d.className="draft"; tl.appendChild(d); }
+  let d=$("draft"), fresh=!d;
+  if(fresh){ d=document.createElement("div"); d.id="draft"; d.className="draft"; tl.appendChild(d); }
   d.style.top=yOf(s)+"px"; d.style.height=((e-s)/60*H-3)+"px";
-  d.textContent=fromMin(s)+"–"+fromMin(e);
   const key=s+"-"+e;
-  if(cr.last && cr.last!==key) haptic(false);
+  if(cr.last===key && !fresh) return;
+  d.innerHTML='<b>'+fromMin(s)+'–'+fromMin(e)+'</b><small>'+durText(e-s)+'</small>';
+  tl.querySelectorAll(".hr").forEach(x=>{ const m=+x.dataset.h*60; x.classList.toggle("on", m>=s && m<=e); });
+  if(cr.last && cr.last!==key){
+    feedback(false);
+    if(!matchMedia("(prefers-reduced-motion: reduce)").matches){ d.classList.remove("tick"); void d.offsetWidth; d.classList.add("tick"); }
+  }
   cr.last=key;
 }
 function crBegin(){
   cr.active=true; cr.a=snapMin(cr.m0); cr.m=cr.m0;
-  haptic(true);
+  feedback(true);
   drawDraft(); autoScroll();
 }
 function crMove(y){ cr.y=y; cr.m=minAt(y); drawDraft(); }
@@ -691,6 +724,7 @@ function crEnd(commit){
   clearTimeout(cr.timer); cancelAnimationFrame(cr.raf);
   const was=cr.active, range=was ? crRange() : null;
   const d=$("draft"); if(d) d.remove();
+  main.querySelectorAll(".hr.on").forEach(x=>x.classList.remove("on"));
   cr=null;
   if(was){
     suppressClick=true; setTimeout(()=>suppressClick=false, 400);
