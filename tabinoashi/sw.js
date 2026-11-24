@@ -2,13 +2,13 @@
  * このファイルはビルド時に dist/sw.js として出力される（バージョンとプリキャッシュ一覧を埋め込む）。
  * キャッシュ名を変える場合は version が上がるので、古いキャッシュは activate で削除する。
  */
-const VERSION = "bdf09a7f47";
+const VERSION = "2e410a6fa6";
 const CACHE = `tabinoashi-${VERSION}`;
 const BASE = "/tabinoashi/"; // 公開パス（通常は "/"、minervalab.jp では "/tabinoashi/"）
 const PRECACHE = [
   "/tabinoashi/",
-  "/tabinoashi/assets/index-DeIgRrDn.js",
   "/tabinoashi/assets/index-pHrBXKgT.css",
+  "/tabinoashi/assets/index-qj8KYMtH.js",
   "/tabinoashi/assets/mapData-Ds3_Hyq6.js",
   "/tabinoashi/assets/vendor-CrowJ5J7.js",
   "/tabinoashi/icons/apple-touch-icon.png",
