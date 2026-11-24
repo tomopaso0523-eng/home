@@ -1,13 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <rect width="1024" height="1024" fill="#0D0D0D"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F1F2F6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
   <!-- hour labels + lines -->
-  <g fill="#3A3A42">
+  <g fill="#D3D4DB">
     <rect x="150" y="214" width="96" height="28" rx="14"/>
     <rect x="150" y="414" width="96" height="28" rx="14"/>
     <rect x="150" y="614" width="96" height="28" rx="14"/>
     <rect x="150" y="814" width="96" height="28" rx="14"/>
   </g>
-  <g stroke="#2A2A30" stroke-width="10" stroke-linecap="round">
+  <g stroke="#E4E5EB" stroke-width="10" stroke-linecap="round">
     <line x1="290" y1="228" x2="874" y2="228"/>
     <line x1="290" y1="428" x2="874" y2="428"/>
     <line x1="290" y1="628" x2="874" y2="628"/>
@@ -16,12 +22,12 @@
   <!-- planned block -->
   <rect x="300" y="248" width="574" height="236" rx="56" fill="#4A78E8"/>
   <rect x="352" y="300" width="250" height="40" rx="20" fill="#FFFFFF"/>
-  <rect x="352" y="366" width="150" height="30" rx="15" fill="#FFFFFF" opacity=".65"/>
+  <rect x="352" y="366" width="150" height="30" rx="15" fill="#FFFFFF" opacity=".7"/>
   <circle cx="790" cy="322" r="40" fill="#FFFFFF"/>
   <path d="M770 323 l14 14 l28 -30" fill="none" stroke="#4A78E8" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
   <!-- dragged (being added) block -->
-  <rect x="306" y="650" width="562" height="160" rx="48" fill="#4A78E8" fill-opacity=".22" stroke="#6E95F5" stroke-width="12" stroke-dasharray="34 24"/>
-  <rect x="352" y="700" width="200" height="36" rx="18" fill="#6E95F5"/>
+  <rect x="306" y="650" width="562" height="160" rx="48" fill="#E5ECFC" stroke="#4A78E8" stroke-width="12" stroke-dasharray="34 24"/>
+  <rect x="352" y="700" width="200" height="36" rx="18" fill="#4A78E8" opacity=".75"/>
   <!-- now line -->
   <line x1="300" y1="560" x2="874" y2="560" stroke="#F0505A" stroke-width="16" stroke-linecap="round"/>
   <circle cx="290" cy="560" r="30" fill="#F0505A"/>
